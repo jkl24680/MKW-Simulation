@@ -1,4 +1,5 @@
 import random
+import sys
 
 # Racer class
 class Racer:
@@ -40,6 +41,10 @@ class Racer:
             self.acceleration = 6
         if weight == "Heavy":
             self.acceleration = 4
+    
+    # Function incorporating acceleration
+    def accelerate(self):
+        pass
 
 # Item class
 class Item:
@@ -77,8 +82,30 @@ def update_position(racer1, racer2):
 def update_distance(racer):
     pass
 
-def get_item(racer):
-    pass
+def get_item(racer, num_racers):
+    if num_racers == 2:
+        return
+    if num_racers == 3:
+        return
+    if num_racers == 4:
+        return
+    if num_racers == 5:
+        return
+    if num_racers == 6:
+        return
+    if num_racers == 7:
+        return
+    if num_racers == 8:
+        return
+    if num_racers == 9:
+        return
+    if num_racers == 10:
+        return
+    if num_racers == 11:
+        return
+    if num_racers == 12:
+        return
+    # TO DO
 
 def use_item(racer):
     pass
@@ -111,3 +138,24 @@ king_boo = Racer("King Boo", "Heavy")
 all_racers = [mario, luigi, peach, daisy, yoshi, diddy_kong, birdo, bowser_jr,
               baby_mario, baby_luigi, baby_peach, baby_daisy, toad, toadette, koopa, dry_bones,
               bowser, rosalina, funky_kong, donkey_kong, wario, waluigi, dry_bowser, king_boo]
+
+# Where we will put everything together and make the animation
+def main():
+    # Making sure the user inputs an integer
+    # The try-except block at the bottom of the code will handle the cases where the user inputs a string
+    n = input("Enter the number of racers: ")
+    if int(n) != float(n):
+        print("Must input an integer between 2 and 12, inclusive.")
+        sys.exit()
+    num_racers = int(n)
+    # TO BE CONTINUED
+
+# Error handling
+if len(sys.argv) != 1:
+    print("Invalid number of inputs.")
+    sys.exit()
+else:
+    try:
+        main()
+    except:
+        print("Unexpected error occurred. Make sure you input an integer between 2 and 12, inclusive.")
