@@ -29,6 +29,17 @@ class Racer:
             self.speed = 25 * (random.random()/2 + 1)
         if weight == "Heavy":
             self.speed = 27 * (random.random()/2 + 1)
+        
+        # Assigns acceleration based on weight
+        # The heavier the character, the lower the acceleration
+        # We will update these values once we create the race track and get the speed stuff figured out
+        # We might randomize the accelerations a little just for fun, but that will be for later
+        if weight == "Light":
+            self.acceleration = 8
+        if weight == "Medium":
+            self.acceleration = 6
+        if weight == "Heavy":
+            self.acceleration = 4
 
 # Item class
 class Item:
@@ -71,3 +82,32 @@ def get_item(racer):
 
 def use_item(racer):
     pass
+
+mario = Racer("Mario", "Medium")
+luigi = Racer("Luigi", "Medium")
+peach = Racer("Peach", "Medium")
+daisy = Racer("Daisy", "Medium")
+yoshi = Racer("Yoshi", "Medium")
+diddy_kong = Racer("Diddy Kong", "Medium")
+birdo = Racer("Birdo", "Medium")
+bowser_jr = Racer("Bowser Jr.", "Medium")
+baby_mario = Racer("Baby Mario", "Light")
+baby_luigi = Racer("Baby Luigi", "Light")
+baby_peach = Racer("Baby Peach", "Light")
+baby_daisy = Racer("Baby Daisy", "Light")
+toad = Racer("Toad", "Light")
+toadette = Racer("Toadette", "Light")
+koopa = Racer("Koopa Troopa", "Light")
+dry_bones = Racer("Dry Bones", "Light")
+bowser = Racer("Bowser", "Heavy")
+rosalina = Racer("Rosalina", "Heavy")
+funky_kong = Racer("Funky Kong", "Heavy")
+donkey_kong = Racer("Donkey Kong", "Heavy")
+wario = Racer("Wario", "Heavy")
+waluigi = Racer("Waluigi", "Heavy")
+dry_bowser = Racer("Dry Bowser", "Heavy")
+king_boo = Racer("King Boo", "Heavy")
+
+all_racers = [mario, luigi, peach, daisy, yoshi, diddy_kong, birdo, bowser_jr,
+              baby_mario, baby_luigi, baby_peach, baby_daisy, toad, toadette, koopa, dry_bones,
+              bowser, rosalina, funky_kong, donkey_kong, wario, waluigi, dry_bowser, king_boo]
