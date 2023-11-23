@@ -78,12 +78,18 @@ def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
 
-def update_distance(racer):
+def update_distance(racer, time):
     # Changes the distance the racer has traveled in a certain time (in this case I used 1 second, but we can change
     # it based on how the race looks and the processing power of our computers). This also assumes the racer speeds
     # are all in m/s
-    distance = racer.distance_from_start + racer.speed
+    distance = racer.distance_from_start + (racer.speed * time)
     racer.distance_from_start = distance
+
+
+def update_speed(racer, time):
+    # Adjusts the speed of the racer based on its acceleration. The method assumes 1 second has passed
+    speed = racer.speed + racer.acceleration * time
+    racer.speed = speed
 
 
 def choose_item(choices, position):
