@@ -435,4 +435,4 @@ else:
     try:
         main()
     except:
-        print("Unexpected error occurred. Make sure you input an integer between 2 and 12, inclusive.")
+        print("Unexpected error occurred. Must input an integer between 2 and 12, inclusive.")
