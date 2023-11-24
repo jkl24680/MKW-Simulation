@@ -105,27 +105,38 @@ def choose_item(choices, position):
 
 def get_item(racer, num_racers):
     if num_racers == 2:
-        racer.item = choose_item(all_items_2, racer.position)
+        item = choose_item(all_items_2, racer.position)
+        racer.item = item
     if num_racers == 3:
-        racer.item = choose_item(all_items_3, racer.position)
+        item = choose_item(all_items_3, racer.position)
+        racer.item = item
     if num_racers == 4:
-        racer.item = choose_item(all_items_4, racer.position)
+        item = choose_item(all_items_4, racer.position)
+        racer.item = item
     if num_racers == 5:
-        racer.item = choose_item(all_items_5, racer.position)
+        item = choose_item(all_items_5, racer.position)
+        racer.item = item
     if num_racers == 6:
-        racer.item = choose_item(all_items_6, racer.position)
+        item = choose_item(all_items_6, racer.position)
+        racer.item = item
     if num_racers == 7:
-        racer.item = choose_item(all_items_7, racer.position)
+        item = choose_item(all_items_7, racer.position)
+        racer.item = item
     if num_racers == 8:
-        racer.item = choose_item(all_items_8, racer.position)
+        item = choose_item(all_items_8, racer.position)
+        racer.item = item
     if num_racers == 9:
-        racer.item = choose_item(all_items_9, racer.position)
+        item = choose_item(all_items_9, racer.position)
+        racer.item = item
     if num_racers == 10:
-        racer.item = choose_item(all_items_10, racer.position)
+        item = choose_item(all_items_10, racer.position)
+        racer.item = item
     if num_racers == 11:
-        racer.item = choose_item(all_items_11, racer.position)
+        item = choose_item(all_items_11, racer.position)
+        racer.item = item
     if num_racers == 12:
-        racer.item = choose_item(all_items_12, racer.position)
+        item = choose_item(all_items_12, racer.position)
+        racer.item = item
 
 
 def use_item(racer):
