@@ -1,6 +1,7 @@
 import random
 import sys
 
+
 # Racer class
 class Racer:
     def __init__(self, name, weight):
@@ -25,11 +26,17 @@ class Racer:
         # and the 23, 25, and 27 are all placeholder numbers that will be changed once we figure out the length of
         # the racetrack. The heavier the character, the faster their speed will be
         if weight == "Light":
-            self.speed = 23 * random.uniform(1.0, 1.5)
+            s = 23 * random.uniform(1.0, 1.5)
+            self.speed = s
+            self.initial_speed = s
         if weight == "Medium":
-            self.speed = 25 * random.uniform(1.0, 1.5)
+            s = 25 * random.uniform(1.0, 1.5)
+            self.speed = s
+            self.initial_speed = s
         if weight == "Heavy":
-            self.speed = 27 * random.uniform(1.0, 1.5)
+            s = 27 * random.uniform(1.0, 1.5)
+            self.speed = s
+            self.initial_speed = s
 
         # Assigns acceleration based on weight
         # The heavier the character, the lower the acceleration
@@ -41,6 +48,9 @@ class Racer:
             self.acceleration = 6
         if weight == "Heavy":
             self.acceleration = 4
+
+        # Assigns a status effect that helps in the use_item() method. All racers will begin with no status effect
+        self.status = None
 
 
 # Item class
@@ -140,7 +150,48 @@ def get_item(racer, num_racers):
 
 
 def use_item(racer):
-    pass
+    if racer.item == "lightning_cloud":
+        time = 0
+        if racer.status == "stunned":
+            if time < 5:
+                racer.speed *= 1.1
+            elif time >= 5 & time <= 8:
+                racer.speed = racer.initial_speed * 0.35
+            elif time > 8:
+                racer.speed = racer.initial_speed
+            else:
+                time += 0.5
+        else:
+            if time < 5:
+                racer.speed *= 1.1
+            elif 5 <= time <= 8:
+                racer.speed *= 0.35
+            elif time > 8:
+                racer.speed = racer.initial_speed
+                return
+            else:
+                time += 0.5
+
+    if racer.item == "lightning_bolt":
+        time = 0
+        if time <= 1:
+            for other_racer in participants:
+                if other_racer != racer:
+                    if other_racer.status == "invulnerable" | other_racer.status == "mega":
+                        other_racer.speed = other_racer.speed
+                    else:
+                        other_racer.status = "stunned"
+                        other_racer.item = None
+                        other_racer.speed = 0
+        elif 1 < time <= 4:
+            for kart in participants:
+                if kart.status == "stunned":
+                    kart.speed = 0.35 * kart.initial_speed
+        elif time > 4:
+            for other_racer in participants:
+                if other_racer != racer:
+                    other_racer.status = None
+                    other_racer.speed = other_racer.initial_speed
 
 
 mario = Racer("Mario", "Medium")
@@ -416,6 +467,7 @@ all_items_2 = [("lightning_cloud", {1: 0, 2: 0.075}),
                ("banana", {1: 0.375, 2: 0.025}),
                ("trip_bananas", {1: 0.1, 2: 0.025})]
 
+
 # Where all the other functions will get called and where we will create the animation
 def main():
     # Checks if the user inputs an integer between 2 and 12
@@ -435,8 +487,9 @@ def main():
     for j in range(len(participants)):
         participants[j].position = initial_positions[j]
         participants[j].distance_from_start = -1 * initial_positions[j]
-        
+
     # TO BE CONTINUED
+
 
 # Error handling
 if len(sys.argv) != 1:
