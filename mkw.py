@@ -1,6 +1,10 @@
 import random
 import sys
 
+# a global list of items that racers are currently unable to obtain due to item/timing limits
+# When a race starts, these 4 items will be unavailable until a certain period of time has passed (check item probability site)
+# WILL NEED TO BE UPDATED THROUGHOUT THE RACE
+Unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
 
 # Racer class
 class Racer:
@@ -84,6 +88,7 @@ class Item:
             self.speed_effect = 1.50
 
 
+
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
@@ -111,45 +116,109 @@ def choose_item(choices, position):
         subtotal += weight[position]
         if subtotal >= r:
             return Item(item)
-
+        
+# Gets all possible items a racer at a certain position can pull
+def possible_items(position, probability_list):
+    return [item[0] for item in probability_list if item[1][position] != 0]
+    
+# Updates the item probabilities based on what is currently unavailable
+# This is so we can take into account the item limits and timing limits
+def update_probabilities(items, probability_list, position):
+    other_items = []
+    sum_prob_items = 0
+    for possible_item in probability_list:
+        if possible_item[0] in items:
+            sum_prob_items += possible_item[1][position]
+        if possible_item[0] not in items and possible_item[1][position] != 0:
+            other_items.append(possible_item[0])
+    for possible_item in probability_list:
+        if possible_item[0] in other_items:
+            possible_item[1][position] += (sum_prob_items / len(other_items))
+        if possible_item[0] in items:
+            possible_item[1][position] = 0
+    return probability_list
 
 def get_item(racer, num_racers):
     if num_racers == 2:
-        item = choose_item(all_items_2, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
+            item = choose_item(all_items_2, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_2, racer.position), racer.position)
+            racer.item = item
     if num_racers == 3:
-        item = choose_item(all_items_3, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_3) for item in Unavailable_items):
+            item = choose_item(all_items_3, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_3, racer.position), racer.position)
+            racer.item = item
     if num_racers == 4:
-        item = choose_item(all_items_4, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_4) for item in Unavailable_items):
+            item = choose_item(all_items_4, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_4, racer.position), racer.position)
+            racer.item = item
     if num_racers == 5:
-        item = choose_item(all_items_5, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_5) for item in Unavailable_items):
+            item = choose_item(all_items_5, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_5, racer.position), racer.position)
+            racer.item = item
     if num_racers == 6:
-        item = choose_item(all_items_6, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_6) for item in Unavailable_items):
+            item = choose_item(all_items_6, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_6, racer.position), racer.position)
+            racer.item = item
     if num_racers == 7:
-        item = choose_item(all_items_7, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_7) for item in Unavailable_items):
+            item = choose_item(all_items_7, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_7, racer.position), racer.position)
+            racer.item = item
     if num_racers == 8:
-        item = choose_item(all_items_8, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_8) for item in Unavailable_items):
+            item = choose_item(all_items_8, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_8, racer.position), racer.position)
+            racer.item = item
     if num_racers == 9:
-        item = choose_item(all_items_9, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_9) for item in Unavailable_items):
+            item = choose_item(all_items_9, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_9, racer.position), racer.position)
+            racer.item = item
     if num_racers == 10:
-        item = choose_item(all_items_10, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_10) for item in Unavailable_items):
+            item = choose_item(all_items_10, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_10, racer.position), racer.position)
+            racer.item = item
     if num_racers == 11:
-        item = choose_item(all_items_11, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_11) for item in Unavailable_items):
+            item = choose_item(all_items_11, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_11, racer.position), racer.position)
+            racer.item = item
     if num_racers == 12:
-        item = choose_item(all_items_12, racer.position)
-        racer.item = item
+        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_12) for item in Unavailable_items):
+            item = choose_item(all_items_12, racer.position)
+            racer.item = item
+        else:
+            item = choose_item(update_probabilities(Unavailable_items, all_items_12, racer.position), racer.position)
+            racer.item = item
 
-
-def use_item(racer):
+# The racer using the item and the list of participants are the input arguments
+def use_item(racer, participants):
     if racer.item == "lightning_cloud":
         time = 0
         if racer.status == "stunned":
