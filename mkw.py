@@ -1,6 +1,7 @@
 import random
 import sys
 
+
 # Racer class
 class Racer:
     def __init__(self, name, weight):
@@ -51,6 +52,7 @@ class Racer:
         # Assigns a status effect that helps in the use_item() method. All racers will begin with no status effect
         self.status = None
 
+
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
@@ -78,11 +80,13 @@ def choose_item(choices, position):
         subtotal += weight[position]
         if subtotal >= r:
             return item
-        
+
+
 # Gets all possible items a racer at a certain position can pull
 def possible_items(position, probability_list):
     return [item[0] for item in probability_list if item[1][position] != 0]
-    
+
+
 # Updates the item probabilities based on what is currently unavailable
 # This is so we can take into account the item limits and timing limits
 def update_probabilities(items, probability_list, position):
@@ -100,129 +104,270 @@ def update_probabilities(items, probability_list, position):
             possible_item[1][position] = 0
     return probability_list
 
+
 def get_item(racer, num_racers, Unavailable_items):
     if num_racers == 2:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
             item = choose_item(all_items_2, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_2, racer.position), racer.position)
             racer.item = item
     if num_racers == 3:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_3) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_3) for item in Unavailable_items):
             item = choose_item(all_items_3, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_3, racer.position), racer.position)
             racer.item = item
     if num_racers == 4:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_4) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_4) for item in Unavailable_items):
             item = choose_item(all_items_4, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_4, racer.position), racer.position)
             racer.item = item
     if num_racers == 5:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_5) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_5) for item in Unavailable_items):
             item = choose_item(all_items_5, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_5, racer.position), racer.position)
             racer.item = item
     if num_racers == 6:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_6) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_6) for item in Unavailable_items):
             item = choose_item(all_items_6, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_6, racer.position), racer.position)
             racer.item = item
     if num_racers == 7:
-        if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_7) for item in Unavailable_items):
+        if not Unavailable_items or racer.position == 1 or not any(
+                item in possible_items(racer.position, all_items_7) for item in Unavailable_items):
             item = choose_item(all_items_7, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_7, racer.position), racer.position)
             racer.item = item
     if num_racers == 8:
-        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_8) for item in Unavailable_items):
+        if not Unavailable_items or racer.position in [1, 2] or not any(
+                item in possible_items(racer.position, all_items_8) for item in Unavailable_items):
             item = choose_item(all_items_8, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_8, racer.position), racer.position)
             racer.item = item
     if num_racers == 9:
-        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_9) for item in Unavailable_items):
+        if not Unavailable_items or racer.position in [1, 2] or not any(
+                item in possible_items(racer.position, all_items_9) for item in Unavailable_items):
             item = choose_item(all_items_9, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_9, racer.position), racer.position)
             racer.item = item
     if num_racers == 10:
-        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_10) for item in Unavailable_items):
+        if not Unavailable_items or racer.position in [1, 2] or not any(
+                item in possible_items(racer.position, all_items_10) for item in Unavailable_items):
             item = choose_item(all_items_10, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_10, racer.position), racer.position)
             racer.item = item
     if num_racers == 11:
-        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_11) for item in Unavailable_items):
+        if not Unavailable_items or racer.position in [1, 2] or not any(
+                item in possible_items(racer.position, all_items_11) for item in Unavailable_items):
             item = choose_item(all_items_11, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_11, racer.position), racer.position)
             racer.item = item
     if num_racers == 12:
-        if not Unavailable_items or racer.position in [1, 2] or not any(item in possible_items(racer.position, all_items_12) for item in Unavailable_items):
+        if not Unavailable_items or racer.position in [1, 2] or not any(
+                item in possible_items(racer.position, all_items_12) for item in Unavailable_items):
             item = choose_item(all_items_12, racer.position)
             racer.item = item
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_12, racer.position), racer.position)
             racer.item = item
 
+
 # The racer using the item and the list of participants are the input arguments
 def use_item(racer, participants):
     if racer.item == "lightning_cloud":
         time = 0
-        if racer.status == "stunned":
-            if time < 5:
-                racer.speed *= 1.1
-            elif time >= 5 & time <= 8:
-                racer.speed = racer.initial_speed * 0.35
-            elif time > 8:
-                racer.speed = racer.initial_speed
+        speed = racer.speed  # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
+        while time <= 8:
+            if racer.status == "stunned":
+                if time < 5:
+                    racer.speed = 1.1 * speed
+                elif time >= 5 & time <= 8:
+                    racer.speed = racer.initial_speed * 0.35
             else:
-                time += 0.5
-        else:
-            if time < 5:
-                racer.speed *= 1.1
-            elif 5 <= time <= 8:
-                racer.speed *= 0.35
-            elif time > 8:
-                racer.speed = racer.initial_speed
-                return
-            else:
-                time += 0.5
+                if time < 5:
+                    racer.speed = 1.1 * speed
+                elif 5 <= time <= 8:
+                    racer.speed = 0.35 * speed
+            time += 1
+        racer.speed = racer.initial_speed
+        racer.item = None
 
     if racer.item == "lightning_bolt":
         time = 0
-        if time <= 1:
+        while time <= 4:
+            if time <= 1:
+                for other_racer in participants:
+                    if other_racer != racer:
+                        if other_racer.status == "invulnerable" | other_racer.status == "mega":
+                            other_racer.speed = other_racer.speed
+                        else:
+                            other_racer.status = "stunned"
+                            other_racer.item = None
+                            other_racer.speed = 0
+            else:
+                for kart in participants:
+                    if kart.status == "stunned":
+                        kart.speed = 0.35 * kart.initial_speed
+            time += 1
+        for other_racer in participants:
+            if other_racer != racer:
+                other_racer.status = None
+                other_racer.speed = other_racer.initial_speed
+            else:
+                other_racer.item = None
+
+    if racer.item == "blooper":
+        time = 0
+        while time <= 5:
             for other_racer in participants:
                 if other_racer != racer:
-                    if other_racer.status == "invulnerable" | other_racer.status == "mega":
+                    if other_racer.status == "invulnerable":
                         other_racer.speed = other_racer.speed
                     else:
-                        other_racer.status = "stunned"
-                        other_racer.item = None
-                        other_racer.speed = 0
-        elif 1 < time <= 4:
-            for kart in participants:
-                if kart.status == "stunned":
-                    kart.speed = 0.35 * kart.initial_speed
-        elif time > 4:
+                        s = 0.9 * other_racer.initial_speed
+                        other_racer.speed = s
+            time += 1
+        for other_racer in participants:
+            if other_racer != racer:
+                other_racer.speed = other_racer.initial_speed
+            else:
+                other_racer.item = None
+
+    if racer.item == "POW":
+        time = 0
+        while time <= 2:
             for other_racer in participants:
-                if other_racer != racer:
-                    other_racer.status = None
-                    other_racer.speed = other_racer.initial_speed
+                if other_racer.position > racer.position:
+                    other_racer.status = "stunned"
+                    other_racer.speed = 0
+            time += 1
+        for other_racer in participants:
+            if other_racer.position > racer.position:
+                other_racer.speed = other_racer.initial_speed
+        racer.item = None
+
+    if racer.item == "mushroom":
+        time = 0
+        speed = racer.speed
+        while time <= 2:
+            racer.speed = 1.5 * speed
+            time += 1
+        racer.speed = racer.initial_speed
+        racer.item = None
+
+    if racer.item == "trip_mushroom":
+        time = 0
+        speed = racer.speed
+        while time <= 6:
+            racer.speed = 1.5 * speed
+            time += 1
+        racer.speed = racer.initial_speed
+        racer.item = None
+
+    if racer.item == "gold_mushroom":
+        time = 0
+        speed = racer.speed
+        while time <= 9:
+            racer.speed = 1.5 * speed
+            time += 1
+        racer.speed = racer.initial_speed
+        racer.item = None
+
+    if racer.item == "star":
+        time = 0
+        while time <= 10:
+            racer.status = "invulnerable"
+            racer.speed = 1.5 * racer.initial_speed
+            # Have to find out how to code in hitting other karts
+            time += 1
+        racer.speed = racer.initial_speed
+        racer.status = None
+        racer.item = None
+
+    if racer.item == "mega_mushroom":
+        time = 0
+        while time <= 10:
+            racer.status = "mega"
+            racer.speed = 1.1 * racer.initial_speed
+            time += 1
+            # Have to find out how to code in hitting other karts
+        racer.status = None
+        racer.speed = racer.initial_speed
+        racer.item = None
+
+    if racer.item == "bullet_bill":
+        time = 0
+        racers_passed = 0
+        while time <= 8 | racers_passed < 5:
+            pass
+        # Change code to account for passing racers. If the update_position method is called, then racers_passed
+        # should go up by 1 and stun the racer
+
+    if racer.item == "green_shell":
+        action = random()
+        time = 0
+        while time <= 1:
+            if racer.position == 1:
+                if 0 <= action <= 0.4:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                other_racer.status = "stunned"
+                                other_racer.speed = 0
+
+            elif racer.position == len(participants) + 1:
+                if 0 <= action <= 0.4:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position - 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                other_racer.status = "stunned"
+                                other_racer.speed = 0
+
+            else:
+                if 0 <= action <= 0.3:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                other_racer.status = "stunned"
+                                other_racer.speed = 0
+                if 0.3 < action <= 0.6:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position - 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                other_racer.status = "stunned"
+                                other_racer.speed = 0
+
+            time += 1
+        racer.item = None
+        kart.status = None
 
 
 mario = Racer("Mario", "Medium")
@@ -508,7 +653,6 @@ def main():
         print("Must input an integer between 2 and 12, inclusive.")
         sys.exit()
     num_racers = int(n)
-
 
     # a list of items that racers are currently unable to obtain due to item/timing limits
     # When a race starts, these 4 items will be unavailable until a certain period of time has passed (check item probability site)
