@@ -1,11 +1,6 @@
 import random
 import sys
 
-# a global list of items that racers are currently unable to obtain due to item/timing limits
-# When a race starts, these 4 items will be unavailable until a certain period of time has passed (check item probability site)
-# WILL NEED TO BE UPDATED THROUGHOUT THE RACE
-Unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
-
 # Racer class
 class Racer:
     def __init__(self, name, weight):
@@ -138,7 +133,7 @@ def update_probabilities(items, probability_list, position):
             possible_item[1][position] = 0
     return probability_list
 
-def get_item(racer, num_racers):
+def get_item(racer, num_racers, Unavailable_items):
     if num_racers == 2:
         if not Unavailable_items or racer.position == 1 or not any(item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
             item = choose_item(all_items_2, racer.position)
@@ -547,6 +542,13 @@ def main():
         sys.exit()
     num_racers = int(n)
 
+
+    # a list of items that racers are currently unable to obtain due to item/timing limits
+    # When a race starts, these 4 items will be unavailable until a certain period of time has passed (check item probability site)
+    # WILL NEED TO BE UPDATED THROUGHOUT THE RACE
+    # For simplicity, there will be 6 items that can become unavailable: the 4 already on the list and the bullet bill and lightning cloud
+    unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
+    
     # Select int(n) racers at random from the list of all racers
     participants = random.sample(all_racers, num_racers)
     initial_positions = [i for i in range(1, num_racers + 1)]
