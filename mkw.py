@@ -51,39 +51,6 @@ class Racer:
         # Assigns a status effect that helps in the use_item() method. All racers will begin with no status effect
         self.status = None
 
-
-# Item class
-class Item:
-    def __init__(self, name):
-
-        # The name of the item (Mushroom, Star, POW, etc.)
-        self.name = name
-
-        # Sets the speed effect for each item
-        # The speed effect is the factor that gets multiplied to either the user's speed or another racer's speed, 
-        # depending on the function of the item (see Google doc)
-        if (name == "green_shell" or name == "red_shell" or name == "blue_shell" or name == "FIB" or name == "bob_omb"
-                or name == "trip_green_shell" or name == "trip_red_shell"):
-            self.speed_effect = 0
-        if name == "banana" or name == "trip_bananas":
-            self.speed_effect = 0.5
-        if name == "blooper":
-            self.speed_effect = 0.9
-        if name == "POW":
-            self.speed_effect = 0
-        if name == "lightning_bolt":
-            self.speed_effect = 0.35
-        if name == "mushroom" or name == "trip_mushroom" or name == "gold_mushroom":
-            self.speed_effect = 1.25
-        if name == "star":
-            self.speed_effect = 1.15
-        if name == "mega_mushroom" or "lightning_cloud":
-            self.speed_effect = 1.10
-        if name == "bullet_bill":
-            self.speed_effect = 1.50
-
-
-
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
@@ -110,7 +77,7 @@ def choose_item(choices, position):
     for item, weight in choices:
         subtotal += weight[position]
         if subtotal >= r:
-            return Item(item)
+            return item
         
 # Gets all possible items a racer at a certain position can pull
 def possible_items(position, probability_list):
@@ -548,7 +515,7 @@ def main():
     # WILL NEED TO BE UPDATED THROUGHOUT THE RACE
     # For simplicity, there will be 6 items that can become unavailable: the 4 already on the list and the bullet bill and lightning cloud
     unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
-    
+
     # Select int(n) racers at random from the list of all racers
     participants = random.sample(all_racers, num_racers)
     initial_positions = [i for i in range(1, num_racers + 1)]
