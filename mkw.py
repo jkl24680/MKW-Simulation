@@ -25,17 +25,18 @@ class Racer:
         # Assigns speed values based on weight. random.uniform(1.0, 1.5) generates a random number between 1.0 and 1.5,
         # and the 23, 25, and 27 are all placeholder numbers that will be changed once we figure out the length of
         # the racetrack. The heavier the character, the faster their speed will be
+        # Before the race starts, everyone has a speed pf 0.
         if weight == "Light":
             s = 23 * random.uniform(1.0, 1.5)
-            self.speed = s
+            self.speed = 0
             self.initial_speed = s
         if weight == "Medium":
             s = 25 * random.uniform(1.0, 1.5)
-            self.speed = s
+            self.speed = 0
             self.initial_speed = s
         if weight == "Heavy":
             s = 27 * random.uniform(1.0, 1.5)
-            self.speed = s
+            self.speed = 0
             self.initial_speed = s
 
         # Assigns acceleration based on weight
@@ -67,9 +68,14 @@ def update_distance(racer, time):
 
 def update_speed(racer, time):
     # Adjusts the speed of the racer based on its acceleration. The method assumes 1 second has passed
-    speed = racer.speed + racer.acceleration * time
-    racer.speed = speed
-
+    if racer.speed < racer.initial_speed:
+        speed = racer.speed + racer.acceleration * time
+        racer.speed = speed
+    
+    # For decelerating back to initial speed after racer uses a mushroom or something
+    if racer.speed > racer.initial_speed:
+        speed = racer.speed - racer.acceleration * time
+        racer.speed = speed
 
 def choose_item(choices, position):
     total = sum(weight[position] for _, weight in choices)
@@ -213,8 +219,11 @@ def use_item(racer, participants):
                 elif 5 <= time <= 8:
                     racer.speed = 0.35 * speed
             time += 1
-        racer.speed = racer.initial_speed
         racer.item = None
+
+        # We probably don't need this line anymore now that we have the while loop in main() that will call update_speed until 
+        # the racer is back to their initial speed
+        racer.speed = racer.initial_speed
 
     if racer.item == "lightning_bolt":
         time = 0
@@ -225,12 +234,12 @@ def use_item(racer, participants):
                         if other_racer.status == "invulnerable" | other_racer.status == "mega":
                             other_racer.speed = other_racer.speed
                         else:
-                            other_racer.status = "stunned"
+                            other_racer.status = "shrunk"
                             other_racer.item = None
                             other_racer.speed = 0
             else:
                 for kart in participants:
-                    if kart.status == "stunned":
+                    if kart.status == "shrunk":
                         kart.speed = 0.35 * kart.initial_speed
             time += 1
         for other_racer in participants:
@@ -274,6 +283,7 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         while time <= 2:
+            racer.status = "sped up"
             racer.speed = 1.5 * speed
             time += 1
         racer.speed = racer.initial_speed
@@ -283,6 +293,7 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         while time <= 6:
+            racer.status = "sped up"
             racer.speed = 1.5 * speed
             time += 1
         racer.speed = racer.initial_speed
@@ -292,6 +303,7 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         while time <= 9:
+            racer.status = "sped up"
             racer.speed = 1.5 * speed
             time += 1
         racer.speed = racer.initial_speed
@@ -669,6 +681,19 @@ def main():
     for j in range(len(participants)):
         participants[j].position = initial_positions[j]
         participants[j].distance_from_start = -1 * initial_positions[j]
+
+    # Causes racers to accelerate or decelerate back to their initial speed
+    # Not sure if this is how to do it though
+    # INCLUDE THIS IN THE BIG WHILE LOOP ONCE WE MAKE THAT
+    for racer in participants:
+        time_accel = 1
+        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == None):
+            update_speed(participants[racer], time_accel)
+            time_accel += 1
+        
+        # Sets time_accel back to 1 so it's not stuck at the value it was after the while loop ended
+        # Not sure if this line is needed though
+        time_accel = 1
 
     # TO BE CONTINUED
 
