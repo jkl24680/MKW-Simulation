@@ -50,8 +50,8 @@ class Racer:
         if weight == "Heavy":
             self.acceleration = 4
 
-        # Assigns a status effect that helps in the use_item() method. All racers will begin with no status effect
-        self.status = None
+        # Assigns a list of status effects that helps in the use_item() method. All racers will begin with no status effects
+        self.status = []
 
 
 def update_position(racer1, racer2):
@@ -204,132 +204,205 @@ def get_item(racer, num_racers, Unavailable_items):
 
 # The racer using the item and the list of participants are the input arguments
 def use_item(racer, participants):
+    # THE LIGHTNING CLOUD IS USED IMMEDIATELY UPON OBTAINING IT, BE AWARE OF THIS IN main()
+    # Also the racer won't lose the lightning cloud until it zaps them
     if racer.item == "lightning_cloud":
-        time = 0
-        speed = racer.speed  # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
-        while time <= 8:
-            if racer.status == "stunned":
-                if time < 5:
-                    racer.speed = 1.1 * speed
-                elif time >= 5 & time <= 8:
-                    racer.speed = racer.initial_speed * 0.35
-            else:
-                if time < 5:
-                    racer.speed = 1.1 * speed
-                elif 5 <= time <= 8:
-                    racer.speed = 0.35 * speed
-            time += 1
-        racer.item = None
+        if "mega" in racer.status or "invulnerable" in racer.status:
+            racer.item = None
+        else:
+            time = 0
+            speed = racer.speed  # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
+            racer.status.append("TC")
+            while time <= 9:
+                if "shrunk" in racer.status or "inked" in racer.status:
+                    if time < 5:
+                        # Instantaneous acceleration for lightning clouds for the first few seconds
+                        while racer.speed != 1.1 * speed and "stunned" not in racer.status and "sped up" not in racer.status:
+                            racer.speed = 1.1 * speed
 
-        # We probably don't need this line anymore now that we have the while loop in main() that will call update_speed until 
-        # the racer is back to their initial speed
-        racer.speed = racer.initial_speed
+                    elif 5 <= time <= 6:
+                        racer.speed = 0
+                        racer.item = None
+                    else:
+                        time_accel1 = 1
+                        while racer.speed != 0.35 * racer.initial_speed:
+                            update_speed(racer, time_accel1)
+                            time_accel1 += 1
+                        
+                else:
+                    if time < 5:
+                        while racer.speed != 1.1 * speed and "stunned" not in racer.status and "sped up" not in racer.status:
+                            racer.speed = 1.1 * racer.initial_speed
+                    elif 5 <= time <= 6:
+                        racer.speed = 0
+                        racer.item = None
+                    else:
+                        time_accel2 = 1
+                        while racer.speed != 0.35 * racer.initial_speed:
+                            update_speed(racer, time_accel2)
+                            time_accel2 += 1
+                time += 1
+            racer.status.remove("TC")
 
     if racer.item == "lightning_bolt":
+        # Removes the item from the user's inventory the moment it gets used (that's how it works in the game)
+        racer.item = None
         time = 0
+        for other_racer in participants:
+            if other_racer != racer:
+                if "mega" in other_racer.status:
+                    other_racer.status.remove("mega")
+                elif "invulerable" in other_racer.status:
+                    pass
+                else:
+                    other_racer.status.append("shrunk")
         while time <= 4:
             if time <= 1:
                 for other_racer in participants:
                     if other_racer != racer:
-                        if other_racer.status == "invulnerable" | other_racer.status == "mega":
+                        # Basically checks if racer is in a mega mushroom
+                        # Shrinks the racer if they are and decelerates them back to their initial speed
+                        if (other_racer.speed > other_racer.initial_speed) and ("sped up" not in other_racer.status) and (
+                            "invulnerable" not in other_racer.status):
+                            time_accel1 = 1
+                            while other_racer.speed != other_racer.initial_speed:
+                                update_speed(other_racer, time_accel1)
+                                time_accel1 += 1
+                            other_racer.item = None
+                        elif "invulnerable" in other_racer.status:
                             other_racer.speed = other_racer.speed
-                        else:
-                            other_racer.status = "shrunk"
+                        
+                        # Cannot shock out a lightning cloud from another racer
+                        elif other_racer.item == "lightning_cloud":
+                            other_racer.speed = 0
+                        else:                       
                             other_racer.item = None
                             other_racer.speed = 0
             else:
                 for kart in participants:
-                    if kart.status == "shrunk":
-                        kart.speed = 0.35 * kart.initial_speed
+                    if "shrunk" in kart.status:
+                        # Accelerates each racer to their reduced speed
+                        time_accel2 = 1
+                        while kart.speed != 0.35 * kart.initial_speed:
+                            update_speed(kart, time_accel2)
+                            time_accel2 += 1
             time += 1
         for other_racer in participants:
-            if other_racer != racer:
-                other_racer.status = None
-                other_racer.speed = other_racer.initial_speed
-            else:
-                other_racer.item = None
+            if other_racer != racer and "shrunk" in other_racer.status:
+                other_racer.status.remove("shrunk")
 
     if racer.item == "blooper":
+        # Removes the item from the user's inventory the moment it gets used
+        racer.item = None
         time = 0
+        for other_racer in participants:
+            if other_racer.position < racer.position:
+                if "invulnerable" not in other_racer.status and "mega" not in other_racer.status and "sped up" not in other_racer.status:
+                    other_racer.status.append("inked")
         while time <= 5:
             for other_racer in participants:
-                if other_racer != racer:
-                    if other_racer.status == "invulnerable":
-                        other_racer.speed = other_racer.speed
-                    else:
-                        s = 0.9 * other_racer.initial_speed
-                        other_racer.speed = s
+                if other_racer.position < racer.position:
+                    # Mushrooms override blooper effects
+                    if "invulnerable" not in other_racer.status and "mega" not in other_racer.status and "sped up" not in other_racer.status:
+                        if "TC" in other_racer.status or "shrunk" in other_racer.status:                           
+                            time_accel1 = 1
+                            s = 0.9 * other_racer.speed
+                            while other_racer.speed != s and "stunned" not in other_racer.status:
+                                update_speed(other_racer, time_accel1)
+                                time_accel1 += 1
+                        
+                        else:  
+                            time_accel2 = 1
+                            while other_racer.speed != 0.9 * other_racer.initial_speed and "stunned" not in other_racer.status:
+                                update_speed(other_racer, time_accel2)
+                                time_accel2 += 1       
             time += 1
         for other_racer in participants:
-            if other_racer != racer:
-                other_racer.speed = other_racer.initial_speed
-            else:
-                other_racer.item = None
+            if other_racer.position < racer.position and "inked" in other_racer.status:
+                other_racer.status.remove("inked")
 
     if racer.item == "POW":
+        # Removes the item from the user's inventory the moment it gets used
+        racer.item = None
         time = 0
+        for other_racer in participants:
+            if other_racer.position < racer.position:
+                if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
+                    other_racer.status.append("stunned")
         while time <= 2:
             for other_racer in participants:
-                if other_racer.position > racer.position:
-                    other_racer.status = "stunned"
-                    other_racer.speed = 0
+                if other_racer.position < racer.position:
+                    if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
+                        # Cannot pow out a lightning cloud from a racer
+                        if other_racer.item == "lightning_cloud":
+                            other_racer.speed = 0
+                        else:
+                            other_racer.item = None
+                            other_racer.speed = 0
             time += 1
         for other_racer in participants:
-            if other_racer.position > racer.position:
-                other_racer.speed = other_racer.initial_speed
-        racer.item = None
+            if other_racer.position < racer.position and "stunned" in other_racer.status:
+                other_racer.status.remove("stunned")
+
 
     if racer.item == "mushroom":
+        # Removes the item from the inventory the moment it gets used
+        racer.item = None
         time = 0
         speed = racer.speed
-        while time <= 2:
-            racer.status = "sped up"
+        racer.status.append("sped up")
+        while time <= 2: 
             racer.speed = 1.5 * speed
             time += 1
-        racer.speed = racer.initial_speed
-        racer.item = None
+        racer.status.remove("sped up")
 
     if racer.item == "trip_mushroom":
         time = 0
         speed = racer.speed
+        racer.status.append("sped up")
         while time <= 6:
-            racer.status = "sped up"
             racer.speed = 1.5 * speed
             time += 1
-        racer.speed = racer.initial_speed
+        racer.status.remove("sped up")
+
+        # In the actual game, your item gets fully removed from your inventory when the 3rd mushroom is used, 
+        # but here, we'll keep it simple and assume that it gets fully removed after the effects of all 3 mushrooms runs out
         racer.item = None
+        
 
     if racer.item == "gold_mushroom":
         time = 0
         speed = racer.speed
-        while time <= 9:
-            racer.status = "sped up"
+        racer.status.append("sped up")
+        while time <= 9: 
             racer.speed = 1.5 * speed
             time += 1
-        racer.speed = racer.initial_speed
+        racer.status.remove("sped up")
+
+        # In the actual game, the item is fully removed from inventory after the effect runs out
         racer.item = None
 
     if racer.item == "star":
+        # Remove item from inventory the moment it gets used
+        racer.item = None
         time = 0
+        racer.status.append("invulnerable")
         while time <= 10:
-            racer.status = "invulnerable"
-            racer.speed = 1.5 * racer.initial_speed
+            racer.speed = 1.3 * racer.initial_speed
             # Have to find out how to code in hitting other karts
             time += 1
-        racer.speed = racer.initial_speed
-        racer.status = None
-        racer.item = None
-
+        racer.status.remove("invulnerable")
+        
     if racer.item == "mega_mushroom":
+        # Remove item from inventory the moment it gets used
+        racer.item = None
         time = 0
+        racer.status.append("mega")
         while time <= 10:
-            racer.status = "mega"
             racer.speed = 1.1 * racer.initial_speed
             time += 1
             # Have to find out how to code in hitting other karts
-        racer.status = None
-        racer.speed = racer.initial_speed
-        racer.item = None
+        racer.status.remove("mega")
 
     if racer.item == "bullet_bill":
         time = 0
@@ -687,7 +760,7 @@ def main():
     # INCLUDE THIS IN THE BIG WHILE LOOP ONCE WE MAKE THAT
     for racer in participants:
         time_accel = 1
-        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == None):
+        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == []):
             update_speed(participants[racer], time_accel)
             time_accel += 1
         
