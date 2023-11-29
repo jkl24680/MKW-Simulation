@@ -29,15 +29,15 @@ class Racer:
         if weight == "Light":
             s = 23 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.initial_speed = s
+            self.max_speed = s
         if weight == "Medium":
             s = 25 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.initial_speed = s
+            self.max_speed = s
         if weight == "Heavy":
             s = 27 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.initial_speed = s
+            self.max_speed = s
 
         # Assigns acceleration based on weight
         # The heavier the character, the lower the acceleration
@@ -53,8 +53,17 @@ class Racer:
         # Assigns a list of status effects that helps in the use_item() method. All racers will begin with no status effects
         self.status = []
 
+        # Racers_passed is used to stop the bullet bill after passing 5 karts. All racers will begin with 0 racers
+        # passed
+        self.racers_passed = 0
+
 
 def update_position(racer1, racer2):
+    if "mega" in racer1.status or "invulnerable" in racer1.status:
+        racer2.status.append("stunned")
+        racer2.speed = 0
+        if racer1.item == "bullet_bill":
+            racer1.racers_passed += 1
     racer1.position, racer2.position = racer2.position, racer1.position
 
 
@@ -68,14 +77,15 @@ def update_distance(racer, time):
 
 def update_speed(racer, time):
     # Adjusts the speed of the racer based on its acceleration. The method assumes 1 second has passed
-    if racer.speed < racer.initial_speed:
+    if racer.speed < racer.max_speed:
         speed = racer.speed + racer.acceleration * time
         racer.speed = speed
-    
+
     # For decelerating back to initial speed after racer uses a mushroom or something
-    if racer.speed > racer.initial_speed:
+    if racer.speed > racer.max_speed:
         speed = racer.speed - racer.acceleration * time
         racer.speed = speed
+
 
 def choose_item(choices, position):
     total = sum(weight[position] for _, weight in choices)
@@ -228,7 +238,7 @@ def use_item(racer, participants):
                         while racer.speed != 0.35 * racer.initial_speed:
                             update_speed(racer, time_accel1)
                             time_accel1 += 1
-                        
+
                 else:
                     if time < 5:
                         while racer.speed != 1.1 * speed and "stunned" not in racer.status and "sped up" not in racer.status:
@@ -252,7 +262,7 @@ def use_item(racer, participants):
             if other_racer != racer:
                 if "mega" in other_racer.status and "invulnerable" not in other_racer.status:
                     other_racer.status.remove("mega")
-                elif "invulerable" in other_racer.status:
+                elif "invulnerable" in other_racer.status:
                     pass
                 else:
                     other_racer.status.append("shrunk")
@@ -264,7 +274,7 @@ def use_item(racer, participants):
                         # Cannot shock out a lightning cloud from another racer
                         if other_racer.item == "lightning_cloud":
                             other_racer.speed = 0
-                        else:                       
+                        else:
                             other_racer.item = None
                             other_racer.speed = 0
             else:
@@ -292,18 +302,18 @@ def use_item(racer, participants):
         while time <= 5:
             for other_racer in participants:
                 if "inked" in other_racer.status:
-                    if "TC" in other_racer.status or "shrunk" in other_racer.status:                           
+                    if "TC" in other_racer.status or "shrunk" in other_racer.status:
                         time_accel1 = 1
                         s = 0.9 * other_racer.speed
                         while other_racer.speed != s and "stunned" not in other_racer.status:
                             update_speed(other_racer, time_accel1)
                             time_accel1 += 1
-                        
-                    else:  
+
+                    else:
                         time_accel2 = 1
                         while other_racer.speed != 0.9 * other_racer.initial_speed and "stunned" not in other_racer.status:
                             update_speed(other_racer, time_accel2)
-                            time_accel2 += 1       
+                            time_accel2 += 1
             time += 1
         for other_racer in participants:
             if "inked" in other_racer.status:
@@ -321,7 +331,7 @@ def use_item(racer, participants):
         while time <= 2:
             for other_racer in participants:
                 if "stunned" in other_racer.status and "POW'd" in other_racer.status:
-                    
+
                     # Cannot pow out a lightning cloud from a racer
                     if other_racer.item == "lightning_cloud":
                         other_racer.speed = 0
@@ -330,12 +340,11 @@ def use_item(racer, participants):
                         other_racer.speed = 0
             time += 1
         for other_racer in participants:
-            # Having 2 statuses added to the list at first allows us to make sure that only the racers that get POW'd get
-            # their stunned status removed after 2 seconds. 
+            # Having 2 statuses added to the list at first allows us to make sure that only the racers that get POW'd
+            # get their stunned status removed after 2 seconds.
             if "stunned" in other_racer.status and "POW'd" in other_racer.status:
                 other_racer.status.remove("stunned")
                 other_racer.status.remove("POW'd")
-
 
     if racer.item == "mushroom":
         # Removes the item from the inventory the moment it gets used
@@ -343,10 +352,11 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         racer.status.append("sped up")
-        while time <= 2: 
+        while time <= 2:
             racer.speed = 1.5 * speed
             time += 1
         racer.status.remove("sped up")
+        racer.speed = speed
 
     if racer.item == "trip_mushroom":
         time = 0
@@ -356,21 +366,21 @@ def use_item(racer, participants):
             racer.speed = 1.5 * speed
             time += 1
         racer.status.remove("sped up")
-
-        # In the actual game, your item gets fully removed from your inventory when the 3rd mushroom is used, 
-        # but here, we'll keep it simple and assume that it gets fully removed after the effects of all 3 mushrooms runs out
+        racer.speed = speed
+        # In the actual game, your item gets fully removed from your inventory when the 3rd mushroom is used,
+        # but here, we'll keep it simple and assume that it gets fully removed after the effects of all 3 mushrooms
+        # runs out
         racer.item = None
-        
 
     if racer.item == "gold_mushroom":
         time = 0
         speed = racer.speed
         racer.status.append("sped up")
-        while time <= 9: 
+        while time <= 9:
             racer.speed = 1.5 * speed
             time += 1
         racer.status.remove("sped up")
-
+        racer.speed = speed
         # In the actual game, the item is fully removed from inventory after the effect runs out
         racer.item = None
 
@@ -379,33 +389,48 @@ def use_item(racer, participants):
         racer.item = None
         time = 0
         racer.status.append("invulnerable")
+        speed = racer.speed
         while time <= 10:
-            racer.speed = 1.3 * racer.initial_speed
+            racer.speed = 1.3 * speed
             # Have to find out how to code in hitting other karts
             time += 1
+        racer.speed = speed
         racer.status.remove("invulnerable")
-        
+
     if racer.item == "mega_mushroom":
         # Remove item from inventory the moment it gets used
         racer.item = None
         time = 0
         racer.status.append("mega")
+        speed = racer.speed
         while time <= 10:
-            racer.speed = 1.1 * racer.initial_speed
+            racer.speed = 1.1 * speed
             time += 1
             # Have to find out how to code in hitting other karts
+        racer.speed = speed
         racer.status.remove("mega")
 
     if racer.item == "bullet_bill":
+        racer.item = None
         time = 0
-        racers_passed = 0
-        while time <= 8 | racers_passed < 5:
-            pass
-        # Change code to account for passing racers. If the update_position method is called, then racers_passed
-        # should go up by 1 and stun the racer
+        racer.status.append("invulnerable")
+        speed = racer.speed
+
+        if racer.position == 1:
+            while time <= 2:
+                racer.speed = 2 * speed
+                time += 1
+        else:
+            while time <= 8 | racer.racers_passed < 5 | racer.position != 1:
+                racer.speed = 2 * speed
+                time += 1
+        racer.speed = speed
+        racer.racers_passed = 0
+        racer.status.remove("invulnerable")
 
     if racer.item == "green_shell":
-        action = random()
+        racer.item = None
+        action = random.random()
         time = 0
         while time <= 1:
             if racer.position == 1:
@@ -414,8 +439,8 @@ def use_item(racer, participants):
                         if other_racer.position == racer.position + 1:
                             if other_racer.status != "invulnerable":
                                 kart = other_racer
-                                other_racer.status = "stunned"
-                                other_racer.speed = 0
+                                kart.status = "stunned"
+                                kart.speed = 0
 
             elif racer.position == len(participants) + 1:
                 if 0 <= action <= 0.4:
@@ -423,8 +448,8 @@ def use_item(racer, participants):
                         if other_racer.position == racer.position - 1:
                             if other_racer.status != "invulnerable":
                                 kart = other_racer
-                                other_racer.status = "stunned"
-                                other_racer.speed = 0
+                                kart.status = "stunned"
+                                kart.speed = 0
 
             else:
                 if 0 <= action <= 0.3:
@@ -432,19 +457,92 @@ def use_item(racer, participants):
                         if other_racer.position == racer.position + 1:
                             if other_racer.status != "invulnerable":
                                 kart = other_racer
-                                other_racer.status = "stunned"
-                                other_racer.speed = 0
-                if 0.3 < action <= 0.6:
+                                kart.status = "stunned"
+                                kart.speed = 0
+                elif 0.3 < action <= 0.6:
                     for other_racer in participants:
                         if other_racer.position == racer.position - 1:
                             if other_racer.status != "invulnerable":
                                 kart = other_racer
-                                other_racer.status = "stunned"
-                                other_racer.speed = 0
+                                kart.status = "stunned"
+                                kart.speed = 0
 
             time += 1
-        racer.item = None
         kart.status = None
+
+    if racer.item == "trip_green_shell":
+        racer.item = None
+        action = random.random()
+        time = 0
+
+        while time <= 1:
+            if racer.position == 1:
+                if 0 <= action <= 0.5:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                kart.status = "stunned"
+                                kart.speed = 0
+                elif 0.5 < action < 0.9:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            kart1 = other_racer
+                        everyone_else = [r for r in participants if r != kart1]
+                        kart = random.choice(everyone_else)
+                        if kart.status != "invulnerable":
+                            kart.status = "stunned"
+                            kart.speed = 0
+
+            elif racer.position == len(participants) + 1:
+                if 0 <= action <= 0.5:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position - 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                kart.status = "stunned"
+                                kart.speed = 0
+                elif 0.5 < action < 0.9:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position - 1:
+                            kart1 = other_racer
+                        everyone_else = [r for r in participants if r != kart1]
+                        kart = random.choice(everyone_else)
+                        if kart.status != "invulnerable":
+                            kart.status = "stunned"
+                            kart.speed = 0
+
+            else:
+                if 0 <= action <= 0.35:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                kart.status = "stunned"
+                                kart.speed = 0
+
+                elif 0.35 < action <= 0.7:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position - 1:
+                            if other_racer.status != "invulnerable":
+                                kart = other_racer
+                                kart.status = "stunned"
+                                kart.speed = 0
+
+                elif 0.7 < action <= 0.9:
+                    for other_racer in participants:
+                        if other_racer.position == racer.position + 1:
+                            kart1 = other_racer
+                        if other_racer.position == racer.position - 1:
+                            kart2 = other_racer
+                        everyone_else = [r for r in participants if r != kart1 & r != kart2]
+                        kart = random.choice(everyone_else)
+                        if kart.status != "invulnerable":
+                            kart.status = "stunned"
+                            kart.speed = 0
+            time += 1
+        kart.status.remove("stunned")
+
 
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
@@ -751,11 +849,12 @@ def main():
     # INCLUDE THIS IN THE BIG WHILE LOOP ONCE WE MAKE THAT
     for racer in participants:
         time_accel = 1
-        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == [] 
-                                                                                    or participants[racer].status == ["temp2"]):
+        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == []
+                                                                                    or participants[racer].status == [
+                                                                                        "temp2"]):
             update_speed(participants[racer], time_accel)
             time_accel += 1
-        
+
         # Sets time_accel back to 1 so it's not stuck at the value it was after the while loop ended
         # Not sure if this line is needed though
         time_accel = 1
