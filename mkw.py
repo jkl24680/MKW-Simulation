@@ -446,7 +446,6 @@ def use_item(racer, participants):
         racer.item = None
         kart.status = None
 
-
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
 peach = Racer("Peach", "Medium")
