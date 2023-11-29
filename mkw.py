@@ -260,6 +260,8 @@ def use_item(racer, participants):
         time = 0
         for other_racer in participants:
             if other_racer != racer:
+                if "sped up" in other_racer.status:
+                    other_racer.status.remove("sped up")
                 if "mega" in other_racer.status and "invulnerable" not in other_racer.status:
                     other_racer.status.remove("mega")
                 elif "invulnerable" in other_racer.status:
@@ -328,6 +330,8 @@ def use_item(racer, participants):
                 if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                     other_racer.status.append("stunned")
                     other_racer.status.append("POW'd")
+                if "sped up" in other_racer.status:
+                    other_racer.status.remove("sped up")
         while time <= 2:
             for other_racer in participants:
                 if "stunned" in other_racer.status and "POW'd" in other_racer.status:
@@ -352,21 +356,37 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         racer.status.append("sped up")
-        while time <= 2:
-            racer.speed = 1.5 * speed
+
+        # Mushrooms remove blooper effects
+        if "inked" in racer.status:
+            racer.status.remove("inked")
+        while time <= 2 and "sped up" in racer.status:
+            
+            # To account for mushroom being used when small
+            if "shrunk" in racer.status or "TC" in racer.status:
+                racer.speed = 1.5 * speed
+            else:
+                racer.speed = 1.5 * racer.initial_speed
             time += 1
-        racer.status.remove("sped up")
-        racer.speed = speed
+        if "sped up" in racer.status:
+            racer.status.remove("sped up")
+            racer.speed = racer.initial_speed
 
     if racer.item == "trip_mushroom":
         time = 0
         speed = racer.speed
         racer.status.append("sped up")
-        while time <= 6:
-            racer.speed = 1.5 * speed
+        if "inked" in racer.status:
+            racer.status.remove("inked")
+        while time <= 6 and "sped up" in racer.status:
+            if "shrunk" in racer.status or "TC" in racer.status:
+                racer.speed = 1.5 * speed
+            else:
+                racer.speed = 1.5 * racer.initial_speed
             time += 1
-        racer.status.remove("sped up")
-        racer.speed = speed
+        if "sped up" in racer.status:
+            racer.status.remove("sped up")
+            racer.speed = racer.initial_speed
         # In the actual game, your item gets fully removed from your inventory when the 3rd mushroom is used,
         # but here, we'll keep it simple and assume that it gets fully removed after the effects of all 3 mushrooms
         # runs out
@@ -376,11 +396,17 @@ def use_item(racer, participants):
         time = 0
         speed = racer.speed
         racer.status.append("sped up")
-        while time <= 9:
-            racer.speed = 1.5 * speed
+        if "inked" in racer.status:
+            racer.status.remove("inked")
+        while time <= 9 and "sped up":
+            if "shrunk" in racer.status or "TC" in racer.status:
+                racer.speed = 1.5 * speed
+            else:
+                racer.speed = 1.5 * racer.initial_speed
             time += 1
-        racer.status.remove("sped up")
-        racer.speed = speed
+        if "sped up" in racer.status:
+            racer.status.remove("sped up")
+            racer.speed = racer.initial_speed
         # In the actual game, the item is fully removed from inventory after the effect runs out
         racer.item = None
 
@@ -389,12 +415,17 @@ def use_item(racer, participants):
         racer.item = None
         time = 0
         racer.status.append("invulnerable")
+        if "inked" in racer.status:
+            racer.status.remove("inked")
         speed = racer.speed
         while time <= 10:
-            racer.speed = 1.3 * speed
+            if "shrunk" in racer.status or "TC" in racer.status:
+                racer.speed = 1.3 * speed
+            else:
+                racer.speed = 1.3 * racer.initial_speed
             # Have to find out how to code in hitting other karts
             time += 1
-        racer.speed = speed
+        racer.speed = racer.initial_speed
         racer.status.remove("invulnerable")
 
     if racer.item == "mega_mushroom":
@@ -402,13 +433,25 @@ def use_item(racer, participants):
         racer.item = None
         time = 0
         racer.status.append("mega")
+
+        # The mega mushroom removes all these effects
+        if "inked" in racer.status:
+            racer.status.remove("inked")
+        if "shrunk" in racer.status:
+            racer.status.remove("shrunk")
+        if "TC" in racer.status:
+            racer.status.remove("TC")
         speed = racer.speed
-        while time <= 10:
-            racer.speed = 1.1 * speed
+        while time <= 10 and "mega" in racer.status:
+            if "invulnerable" not in racer.status:
+                racer.speed = 1.1 * racer.initial_speed
+            else:
+                racer.speed = 1.1 * speed
             time += 1
             # Have to find out how to code in hitting other karts
-        racer.speed = speed
-        racer.status.remove("mega")
+        if "mega" in racer.status:
+            racer.status.remove("mega")
+            racer.speed = racer.initial_speed
 
     if racer.item == "bullet_bill":
         racer.item = None
@@ -849,9 +892,8 @@ def main():
     # INCLUDE THIS IN THE BIG WHILE LOOP ONCE WE MAKE THAT
     for racer in participants:
         time_accel = 1
-        while (participants[racer].speed != participants[racer].initial_speed) and (participants[racer].status == []
-                                                                                    or participants[racer].status == [
-                                                                                        "temp2"]):
+        while (participants[racer].speed != participants[racer].initial_speed) and (not participants[racer].status):
+                                                                                    
             update_speed(participants[racer], time_accel)
             time_accel += 1
 
