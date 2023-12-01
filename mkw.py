@@ -218,8 +218,8 @@ Additional notes on items: If a racer is currently stunned by a green or red she
 have no effect. Pow blocks will override the green or red shell hit, and bombs and blue shells will override the POW block stun
 and thus will also override green or red shell stun.
 
-The "green'd" status is technically the status used when a racer gets stunned by one of the items that only stuns for 1 second, 
-not just green shells.
+The "1s_stun" status is the status used when a racer gets stunned by one of the items that only stuns for 1 second.
+The "3s_stun" status is the status used when a racer gets stunned by one of the items that stuns for 3 seconds.
 '''
 def use_item(racer, participants):
     # THE LIGHTNING CLOUD IS USED IMMEDIATELY UPON OBTAINING IT, BE AWARE OF THIS IN main()
@@ -334,14 +334,14 @@ def use_item(racer, participants):
         racer.item = None
         time = 0
         for other_racer in participants:
-            if other_racer.position < racer.position and "blown up" not in other_racer.status:
+            if other_racer.position < racer.position and "3s_stun" not in other_racer.status:
 
                 # Remove "stunned" from the status list if racer is currently stunned from a shell or FIB
                 # and then readd it to ensure the code doesn't break
                 if "stunned" in other_racer.status:
                     other_racer.status.remove("stunned")
-                if "green'd" in other_racer.status:
-                    other_racer.status.remove("green'd")
+                if "1s_stun" in other_racer.status:
+                    other_racer.status.remove("1s_stun")
                 if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                     other_racer.status.remove("sped up")
                 if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
@@ -508,6 +508,12 @@ def use_item(racer, participants):
         # Bullet bills don't disappear from inventory until they run out
         racer.item = None
 
+    '''
+    Code for the rest of the items on this list might not fully work because I'm not sure if
+    it will track the correct racer if, for example, the person in first place switches positions
+    with the person in 2nd while that person who was in 1st is still stunned from a blue shell. Or maybe
+    I'm just overthinking it idk. For now, let's just hope everything works out.
+    '''
     if racer.item == "green_shell":
         racer.item = None
         action = random.random()
@@ -517,68 +523,68 @@ def use_item(racer, participants):
                 for other_racer in participants:
                     # Making sure that the racer isn't currently stunned by something else
                     if (other_racer.position == racer.position + 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
         elif racer.position == len(participants):
             if 0 <= action <= 0.4:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
         else:
             if 0 <= action <= 0.3:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
             elif 0.3 < action <= 0.6:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
 
     if racer.item == "trip_green_shell":
@@ -589,54 +595,54 @@ def use_item(racer, participants):
             if 0 <= action <= 0.5:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
             elif 0.5 < action < 0.9:
                 for other_racer in participants:
                     if other_racer.position == racer.position + 1:
                         kart1 = other_racer
                     everyone_else = [r for r in participants if r != kart1 and r != racer]
                     kart = random.choice(everyone_else)
-                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("green'd" 
-                                            not in kart.status) and "blown up" not in kart.status:
+                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("1s_stun" 
+                                            not in kart.status) and "3s_stun" not in kart.status:
                         if "sped up" in kart.status and "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.remove("sped up")
                         if "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.append("stunned")
-                            kart.status.append("green'd")
-                        while time <= 1 and "stunned" in kart.status and "green'd" in kart.status:
+                            kart.status.append("1s_stun")
+                        while time <= 1 and "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.speed = 0
                             time += 1
-                        if "stunned" in kart.status and "green'd" in kart.status:
+                        if "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.status.remove("stunned")
-                            kart.status.remove("green'd")
+                            kart.status.remove("1s_stun")
 
         elif racer.position == len(participants):
             if 0 <= action <= 0.5:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
             elif 0.5 < action < 0.9:
                 for other_racer in participants:
@@ -644,52 +650,52 @@ def use_item(racer, participants):
                         kart1 = other_racer
                     everyone_else = [r for r in participants if (r != kart1 and r != racer)]
                     kart = random.choice(everyone_else)
-                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("green'd" 
-                                            not in kart.status) and "blown up" not in kart.status:
+                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("1s_stun" 
+                                            not in kart.status) and "3s_stun" not in kart.status:
                         if "sped up" in kart.status and "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.remove("sped up")
                         if "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.append("stunned")
-                            kart.status.append("green'd")
-                        while time <= 1 and "stunned" in kart.status and "green'd" in kart.status:
+                            kart.status.append("1s_stun")
+                        while time <= 1 and "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.speed = 0
                             time += 1
-                        if "stunned" in kart.status and "green'd" in kart.status:
+                        if "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.status.remove("stunned")
-                            kart.status.remove("green'd")
+                            kart.status.remove("1s_stun")
 
         else:
             if 0 <= action <= 0.35:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
             elif 0.35 < action <= 0.7:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1) and ("POW'd" not in other_racer.status) and ("stunned" not in 
-                            other_racer.status) and ("green'd" not in other_racer.status) and "blown up" not in other_racer.status:
+                            other_racer.status) and ("1s_stun" not in other_racer.status) and "3s_stun" not in other_racer.status:
                         if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.remove("sped up")
                         if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                             other_racer.status.append("stunned")
-                            other_racer.status.append("green'd")
-                        while time <= 1 and "stunned" in other_racer.status and "green'd" in other_racer.status:
+                            other_racer.status.append("1s_stun")
+                        while time <= 1 and "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.speed = 0
                             time += 1
-                        if "stunned" in other_racer.status and "green'd" in other_racer.status:
+                        if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                             other_racer.status.remove("stunned")
-                            other_racer.status.remove("green'd")
+                            other_racer.status.remove("1s_stun")
 
             elif 0.7 < action <= 0.9:
                 for other_racer in participants:
@@ -699,42 +705,41 @@ def use_item(racer, participants):
                         kart2 = other_racer
                     everyone_else = [r for r in participants if (r != kart1 and r != kart2 and r != racer)]
                     kart = random.choice(everyone_else)
-                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("green'd" 
-                                            not in kart.status) and "blown up" not in kart.status:
+                    if ("POW'd" not in kart.status) and ("stunned" not in kart.status) and ("1s_stun" 
+                                            not in kart.status) and "3s_stun" not in kart.status:
                         if "sped up" in kart.status and "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.remove("sped up")
                         if "invulnerable" not in kart.status and "mega" not in kart.status:
                             kart.status.append("stunned")
-                            kart.status.append("green'd")
-                        while time <= 1 and "stunned" in kart.status and "green'd" in kart.status:
+                            kart.status.append("1s_stun")
+                        while time <= 1 and "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.speed = 0
                             time += 1
-                        if "stunned" in kart.status and "green'd" in kart.status:
+                        if "stunned" in kart.status and "1s_stun" in kart.status:
                             kart.status.remove("stunned")
-                            kart.status.remove("green'd")
+                            kart.status.remove("1s_stun")
 
     if racer.item == "blue_shell":
         racer.item = None
         time = 0
         for other_racer in participants:
-            if other_racer.position == 1 and "blown up" not in other_racer.status:
+            if other_racer.position == 1 and "3s_stun" not in other_racer.status:
                 if "stunned" in other_racer.status:
                     other_racer.status.remove("stunned")
-                if "green'd" in other_racer.status:
-                    other_racer.status.remove("green'd")
+                if "1s_stun" in other_racer.status:
+                    other_racer.status.remove("1s_stun")
                 if "POW'd" in other_racer.status:
                     other_racer.status.remove("POW'd")
                 if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                     other_racer.status.remove("sped up")
                 if "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                     other_racer.status.append("stunned")
-                    other_racer.status.append("blown up")
-                while time <= 3 and "stunned" in other_racer.status and "blown up" in other_racer.status:
+                    other_racer.status.append("3s_stun")
+                while time <= 3 and "stunned" in other_racer.status and "3s_stun" in other_racer.status:
                     other_racer.speed = 0
                     time += 1
-                if "stunned" in other_racer.status and "blown up" in other_racer.status:
-                    other_racer.status.remove("stunned")
-                    other_racer.status.remove("blown up")
+                other_racer.status.remove("stunned")
+                other_racer.status.remove("3s_stun")
                 
 
 mario = Racer("Mario", "Medium")
