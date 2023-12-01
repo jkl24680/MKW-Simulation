@@ -398,7 +398,7 @@ def use_item(racer, participants):
         racer.status.append("sped up")
         if "inked" in racer.status:
             racer.status.remove("inked")
-        while time <= 9 and "sped up":
+        while time <= 9 and "sped up" in racer.status:
             if "shrunk" in racer.status or "TC" in racer.status:
                 racer.speed = 1.5 * speed
             else:
@@ -454,22 +454,32 @@ def use_item(racer, participants):
             racer.speed = racer.initial_speed
 
     if racer.item == "bullet_bill":
-        racer.item = None
+        
         time = 0
         racer.status.append("invulnerable")
-        speed = racer.speed
+        if "inked" in racer.status:
+            racer.status.remove("inked")
+        if "mega" in racer.status:
+            racer.status.remove("mega")
+        if "shrunk" in racer.status:
+            racer.status.remove("shrunk")
+        if "TC" in racer.status:
+            racer.status.remove("TC")
 
         if racer.position == 1:
             while time <= 2:
-                racer.speed = 2 * speed
+                racer.speed = 2 * racer.initial_speed
                 time += 1
         else:
             while time <= 8 | racer.racers_passed < 5 | racer.position != 1:
-                racer.speed = 2 * speed
+                racer.speed = 2 * racer.initial_speed
                 time += 1
-        racer.speed = speed
+        racer.speed = racer.initial_speed
         racer.racers_passed = 0
         racer.status.remove("invulnerable")
+
+        # Bullet bills don't disappear from inventory until they run out
+        racer.item = None
 
     if racer.item == "green_shell":
         racer.item = None
