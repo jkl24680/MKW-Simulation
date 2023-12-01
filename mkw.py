@@ -418,16 +418,16 @@ def use_item(racer, participants):
         if "inked" in racer.status:
             racer.status.remove("inked")
         speed = racer.speed
-        while time <= 10:
+        while time <= 10 and "bill" not in racer.status:
             if "shrunk" in racer.status or "TC" in racer.status:
                 racer.speed = 1.3 * speed
             else:
                 racer.speed = 1.3 * racer.initial_speed
             # Have to find out how to code in hitting other karts
             time += 1
-        racer.speed = racer.initial_speed
-        racer.status.remove("invulnerable")
-
+        if "invulnerable" in racer.status and "bill" not in racer.status:
+            racer.status.remove("invulnerable")
+            
     if racer.item == "mega_mushroom":
         # Remove item from inventory the moment it gets used
         racer.item = None
@@ -456,7 +456,6 @@ def use_item(racer, participants):
     if racer.item == "bullet_bill":
         
         time = 0
-        racer.status.append("invulnerable")
         if "inked" in racer.status:
             racer.status.remove("inked")
         if "mega" in racer.status:
@@ -465,6 +464,17 @@ def use_item(racer, participants):
             racer.status.remove("shrunk")
         if "TC" in racer.status:
             racer.status.remove("TC")
+
+        # If the user is currently in a star when they use the bullet bill, remove the invulnerable status
+        # and add it again to guarantee that nothing weird happens
+        if "invulnerable" in racer.status:
+            racer.status.remove("invulnerable")
+
+        # The 'bill' status is required for a very specific situation in which the user activates the bill while in a star
+        # Don't want the code to break because of this
+        racer.status.append("invulnerable")
+        racer.status.append("bill")
+        
 
         if racer.position == 1:
             while time <= 2:
@@ -477,6 +487,7 @@ def use_item(racer, participants):
         racer.speed = racer.initial_speed
         racer.racers_passed = 0
         racer.status.remove("invulnerable")
+        racer.status.remove("bill")
 
         # Bullet bills don't disappear from inventory until they run out
         racer.item = None
