@@ -62,8 +62,12 @@ class Racer:
         # loop and multiple "stunned" will be appended, which we don't want.
         self.shocked = False
 
+        # Stores whether a racer with a lightning cloud is currently in the initial phase where they speed up
+        # or in the final phase where they are shocked and slowed down
+        # Mainly used to account for very specific scenarios that have potential to break the code
         self.TC_initial = False
         self.TC_final = False
+
         # For very specifc scnearios where a racer has at least one of these status and needs to accelerate
         # to their max speed based on which ones they have
         def max_speed_slowdown(self):
@@ -154,10 +158,13 @@ def update_position(racer1, racer2):
                 if time <= 1:
                     if racer2.item == "lightning_cloud":
                         racer2.speed = 0
+                        racer2.shocked = True
                     else:
+                        racer2.shocked = True
                         racer2.item = None
                         racer2.speed = 0
                 else:
+                    racer2.shocked = False
                     if "squished" in racer2.status:
                         if racer2.TC_initial == True and "shrunk" not in racer2.status and "inked" not in racer2.status:
                             while (racer2.speed != 0.35 * 1.1 * racer2.max_speed 
