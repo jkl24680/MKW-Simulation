@@ -59,12 +59,60 @@ class Racer:
 
 
 def update_position(racer1, racer2):
-    if "mega" in racer1.status or "invulnerable" in racer1.status:
-        racer2.status.append("stunned")
-        racer2.speed = 0
-        if racer1.item == "bullet_bill":
-            racer1.racers_passed += 1
     racer1.position, racer2.position = racer2.position, racer1.position
+
+    # 50% chance of racers in stars and bullet bills hitting the racers they pass
+    action = random.random()
+    time = 0
+    if "invulnerable" in racer1.status and "bill" not in racer1.status:
+        if 0 <= action <= 0.5:
+            if ("POW'd" not in racer2.status) and ("stunned" not in racer2.status) and ("1s_stun" 
+                                                    not in racer2.status) and "3s_stun" not in racer2.status:
+                if "sped up" in racer2.status and "invulnerable" not in racer2.status:
+                    racer2.status.remove("sped up")
+                
+                # Normally the star wouldn't take away the mega effect, but let's make things easier for ourselves
+                if "mega" in racer2.status and "invulnerable" not in racer2.status:
+                    racer2.status.remove("mega")
+                if "invulnerable" not in racer2.status:
+                    racer2.status.append("stunned")
+                    racer2.status.append("1s_stun")
+                while time <= 1 and "stunned" in racer2.status and "1s_stun" in racer2.status:
+                    if racer2.item == "lightning_cloud":
+                        racer2.speed = 0
+                    else:
+                        racer2.speed = 0
+                        racer2.item = None
+                    time += 1
+                if "stunned" in racer2.status and "1s_stun" in racer2.status:
+                    racer2.status.remove("stunned")
+                    racer2.status.remove("1s_stun")
+    if "bill" in racer1.status:
+        racer1.racers_passed += 1
+        if 0 <= action <= 0.5:
+            if "3s_stun" not in racer2.status:
+                if "mega" in racer2.status and "invulnerable" not in racer2.status:
+                    racer2.status.remove("mega")
+                if "stunned" in racer2.status:
+                    racer2.status.remove("stunned")
+                if "1s_stun" in racer2.status:
+                    racer2.status.remove("1s_stun")
+                if "POW'd" in racer2.status:
+                    racer2.status.remove("POW'd")
+                if "sped up" in racer2.status and "invulnerable" not in racer2.status:
+                    racer2.status.remove("sped up")
+                if "invulnerable" not in racer2.status:
+                    racer2.status.append("stunned")
+                    racer2.status.append("3s_stun")
+                while time <= 3 and "stunned" in racer2.status and "3s_stun" in racer2.status:
+                    if racer2.item == "lightning_cloud":
+                        racer2.speed = 0
+                    else:
+                        racer2.speed = 0
+                        racer2.item = None
+                    time += 1
+                racer2.status.remove("stunned")
+                racer2.status.remove("3s_stun")
 
 
 def update_distance(racer, time):
@@ -210,7 +258,6 @@ def get_item(racer, num_racers, Unavailable_items):
         else:
             item = choose_item(update_probabilities(Unavailable_items, all_items_12, racer.position), racer.position)
             racer.item = item
-
 
 # The racer using the item and the list of participants are the input arguments
 '''
@@ -439,7 +486,6 @@ def use_item(racer, participants):
                 racer.speed = 1.3 * speed
             else:
                 racer.speed = 1.3 * racer.initial_speed
-            # Have to find out how to code in hitting other karts
             time += 1
         if "invulnerable" in racer.status and "bill" not in racer.status:
             racer.status.remove("invulnerable")
