@@ -769,13 +769,13 @@ def use_item(racer, participants):
                     if (other_racer.position == racer.position + 1):
                         one_sec_stun(other_racer)
 
-            elif 0.5 < action < 0.9:
+            elif 0.5 < action <= 0.9:
                 for other_racer in participants:
                     if other_racer.position == racer.position + 1:
                         kart1 = other_racer
-                    everyone_else = [r for r in participants if r != kart1 and r != racer]
-                    kart = random.choice(everyone_else)
-                    one_sec_stun(kart)
+                everyone_else = [r for r in participants if r != kart1]
+                kart = random.choice(everyone_else)
+                one_sec_stun(kart)
 
         elif racer.position == len(participants):
             if 0 <= action <= 0.5:
@@ -783,13 +783,13 @@ def use_item(racer, participants):
                     if (other_racer.position == racer.position - 1):
                         one_sec_stun(other_racer)
 
-            elif 0.5 < action < 0.9:
+            elif 0.5 < action <= 0.9:
                 for other_racer in participants:
                     if other_racer.position == racer.position - 1:
                         kart1 = other_racer
-                    everyone_else = [r for r in participants if (r != kart1 and r != racer)]
-                    kart = random.choice(everyone_else)
-                    one_sec_stun(kart)
+                everyone_else = [r for r in participants if (r != kart1)]
+                kart = random.choice(everyone_else)
+                one_sec_stun(kart)
 
         else:
             if 0 <= action <= 0.35:
@@ -808,9 +808,9 @@ def use_item(racer, participants):
                         kart1 = other_racer
                     if other_racer.position == racer.position - 1:
                         kart2 = other_racer
-                    everyone_else = [r for r in participants if (r != kart1 and r != kart2 and r != racer)]
-                    kart = random.choice(everyone_else)
-                    one_sec_stun(kart)
+                everyone_else = [r for r in participants if (r != kart1 and r != kart2)]
+                kart = random.choice(everyone_else)
+                one_sec_stun(kart)
 
     if racer.item == "blue_shell":
         racer.item = None
@@ -854,13 +854,13 @@ def use_item(racer, participants):
                         if (other_racer.position == racer.position + 1):
                             one_sec_stun(other_racer)
 
-                elif 0.4 < action < 0.65:
+                elif 0.4 < action <= 0.65:
                     for other_racer in participants:
                         if other_racer.position == racer.position + 1:
                             kart1 = other_racer
-                        everyone_else = [r for r in participants if r != kart1 and r != racer]
-                        kart = random.choice(everyone_else)
-                        one_sec_stun(kart)
+                    everyone_else = [r for r in participants if r != kart1 and r != racer]
+                    kart = random.choice(everyone_else)
+                    one_sec_stun(kart)
 
             elif racer.position == len(participants):
                 if 0 <= action <= 0.6:
@@ -966,6 +966,154 @@ def use_item(racer, participants):
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
                         banana_slowdown(other_racer)
+
+    if racer.item == "trip_bananas":
+        racer.item = None
+        action = random.random()
+        if racer.position == 1:
+            if 0 <= action <= 0.4:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        banana_slowdown(other_racer)
+
+            elif 0.4 < action <= 0.7:
+                back_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or 
+                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
+                        back_three.append(other_racer)
+                kart = random.choice(back_three)
+                banana_slowdown(kart)
+
+        elif racer.position == len(participants):
+            if 0 <= action <= 0.4:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        banana_slowdown(other_racer)
+
+            elif 0.4 < action <= 0.7:
+                front_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
+                        front_three.append(other_racer)
+                kart = random.choice(front_three)
+                banana_slowdown(kart)
+
+        else:
+            if 0 <= action <= 0.25:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        banana_slowdown(other_racer)
+
+            elif 0.25 < action <= 0.5:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        banana_slowdown(other_racer)
+
+            elif 0.5 < action <= 0.7:
+                within_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2 or
+                            other_racer.position == racer.position + 3 or other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
+                        within_three.append(other_racer)
+                kart = random.choice(within_three)
+                banana_slowdown(kart)
+    
+    if racer.item == "bob_omb":
+        racer.item = None
+        action = random.random()
+        if racer.position == 1:
+            if 0 <= action <= 0.5:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        three_sec_stun(other_racer)
+            
+            elif 0.5 < action <= 0.8:
+                back_two = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2):
+                        back_two.append(other_racer)
+                for kart in back_two:
+                    three_sec_stun(kart)
+            
+            elif 0.8 < action <= 0.9:
+                back_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or 
+                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
+                        back_three.append(other_racer)
+                for kart in back_three:
+                    three_sec_stun(kart)
+
+        elif racer.position == len(participants):
+            if 0 <= action <= 0.5:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        three_sec_stun(other_racer)
+
+            elif 0.5 < action <= 0.8:
+                front_two = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2):
+                        front_two.append(other_racer)
+                for kart in front_two:
+                    three_sec_stun(kart)
+            
+            elif 0.8 < action <= 0.9:
+                front_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
+                        front_three.append(other_racer)
+                for kart in front_three:
+                    three_sec_stun(kart)
+
+        else:
+            if 0 <= action <= 0.2:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        three_sec_stun(other_racer)
+            
+            elif 0.2 < action <= 0.35:
+                front_two = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2):
+                        front_two.append(other_racer)
+                for kart in front_two:
+                    three_sec_stun(kart)
+
+            elif 0.35 < action <= 0.45:
+                front_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
+                        front_three.append(other_racer)
+                for kart in front_three:
+                    three_sec_stun(kart)
+
+            elif 0.45 < action <= 0.65:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        three_sec_stun(other_racer)
+
+            elif 0.65 < action <= 0.8:
+                back_two = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2):
+                        back_two.append(other_racer)
+                for kart in back_two:
+                    three_sec_stun(kart)
+
+            elif 0.8 < action <= 0.9:
+                back_three = []
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1 or 
+                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
+                        back_three.append(other_racer)
+                for kart in back_three:
+                    three_sec_stun(kart)
 
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
@@ -1271,6 +1419,8 @@ def main():
     # Causes racers to accelerate or decelerate back to their initial speed
     # Not sure if this is how to do it though
     # INCLUDE THIS IN THE BIG WHILE LOOP ONCE WE MAKE THAT
+    
+
     for racer in participants:
         time_accel = 1
         while (participants[racer].speed != participants[racer].max_speed) and (not participants[racer].status):
