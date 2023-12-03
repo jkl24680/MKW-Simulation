@@ -87,45 +87,6 @@ class Racer:
                 speed = self.max_speed
             return speed
 
-# Stuns the racer for 1 second (used in use_item)
-def one_sec_stun(racer):
-    time = 0
-    if ("POW'd" not in racer.status) and ("stunned" not in 
-                            racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
-        if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
-            racer.status.remove("sped up")
-        if "invulnerable" not in racer.status and "mega" not in racer.status:
-            racer.status.append("stunned")
-            racer.status.append("1s_stun")
-        while time <= 1 and "stunned" in racer.status and "1s_stun" in racer.status:
-            racer.speed = 0
-            time += 1
-        if "stunned" in racer.status and "1s_stun" in racer.status:
-            racer.status.remove("stunned")
-            racer.status.remove("1s_stun")
-
-# Stuns the racer for 3 seconds (used in use_item)
-def three_sec_stun(racer):
-    time = 0
-    if "3s_stun" not in racer.status:
-        if "stunned" in racer.status:
-            racer.status.remove("stunned")
-        if "1s_stun" in racer.status:
-            racer.status.remove("1s_stun")
-        if "POW'd" in racer.status:
-            racer.status.remove("POW'd")
-        if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
-            racer.status.remove("sped up")
-        if "invulnerable" not in racer.status and "mega" not in racer.status:
-            racer.status.append("stunned")
-            racer.status.append("3s_stun")
-            racer.item = None
-        while time <= 3 and "stunned" in racer.status and "3s_stun" in racer.status:
-            racer.speed = 0
-            time += 1
-        racer.status.remove("stunned")
-        racer.status.remove("3s_stun")
-
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
@@ -369,7 +330,57 @@ def get_item(racer, num_racers, Unavailable_items):
             item = choose_item(update_probabilities(Unavailable_items, all_items_12, racer.position), racer.position)
             racer.item = item
 
+# Stuns the racer for 1 second (used in use_item)
+def one_sec_stun(racer):
+    time = 0
+    if ("POW'd" not in racer.status) and ("stunned" not in 
+                            racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
+        if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.status.remove("sped up")
+        if "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.status.append("stunned")
+            racer.status.append("1s_stun")
+        while time <= 1 and "stunned" in racer.status and "1s_stun" in racer.status:
+            racer.speed = 0
+            time += 1
+        if "stunned" in racer.status and "1s_stun" in racer.status:
+            racer.status.remove("stunned")
+            racer.status.remove("1s_stun")
 
+# Stuns the racer for 3 seconds (used in use_item)
+def three_sec_stun(racer):
+    time = 0
+    if "3s_stun" not in racer.status:
+        if "stunned" in racer.status:
+            racer.status.remove("stunned")
+        if "1s_stun" in racer.status:
+            racer.status.remove("1s_stun")
+        if "POW'd" in racer.status:
+            racer.status.remove("POW'd")
+        if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.status.remove("sped up")
+        if "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.status.append("stunned")
+            racer.status.append("3s_stun")
+            if racer.item != "lightning_cloud":
+                racer.item = None
+        while time <= 3 and "stunned" in racer.status and "3s_stun" in racer.status:
+            racer.speed = 0
+            time += 1
+        racer.status.remove("stunned")
+        racer.status.remove("3s_stun")
+
+def banana_slowdown(racer):
+    time = 0
+    speed = racer.speed
+    if ("POW'd" not in racer.status) and ("stunned" not in 
+                            racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
+        if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.status.remove("sped up")
+        if "invulnerable" not in racer.status and "mega" not in racer.status:
+            while time <= 1:
+                racer.speed = 0.5 * speed
+                time += 1
 
 # The racer using the item and the list of participants are the input arguments
 '''
@@ -724,7 +735,6 @@ def use_item(racer, participants):
     if racer.item == "green_shell":
         racer.item = None
         action = random.random()
-        time = 0
         if racer.position == 1:
             if 0 <= action <= 0.4:
                 for other_racer in participants:
@@ -753,7 +763,6 @@ def use_item(racer, participants):
     if racer.item == "trip_green_shell":
         racer.item = None
         action = random.random()
-        time = 0
         if racer.position == 1:
             if 0 <= action <= 0.5:
                 for other_racer in participants:
@@ -805,7 +814,6 @@ def use_item(racer, participants):
 
     if racer.item == "blue_shell":
         racer.item = None
-        time = 0
         for other_racer in participants:
             if other_racer.position == 1:
                 three_sec_stun(racer)
@@ -813,7 +821,6 @@ def use_item(racer, participants):
     if racer.item == "red_shell":
         racer.item = None
         action = random.random()
-        time = 0
         if racer.position == 1:
             if 0 <= action <= 0.3:
                 for other_racer in participants:
@@ -840,7 +847,6 @@ def use_item(racer, participants):
     if racer.item == "trip_red_shell":
         racer.item = None
         action = random.random()
-        time = 0
         if len(participants) >= 3:
             if racer.position == 1:
                 if 0 <= action <= 0.4:
@@ -912,7 +918,6 @@ def use_item(racer, participants):
     if racer.item == "FIB":
         racer.item = None
         action = random.random()
-        time = 0
         if racer.position == 1:
             if 0 <= action <= 0.35:
                 for other_racer in participants:
@@ -934,7 +939,33 @@ def use_item(racer, participants):
             elif 0.25 < action <= 0.5:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
-                        one_sec_stun(other_racer)        
+                        one_sec_stun(other_racer)      
+
+    if racer.item == "banana":
+        racer.item = None
+        action = random.random()
+        if racer.position == 1:
+            if 0 <= action <= 0.3:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        banana_slowdown(other_racer)
+
+        elif racer.position == len(participants):
+            if 0 <= action <= 0.3:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        banana_slowdown(other_racer)
+
+        else:
+            if 0 <= action <= 0.2:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position + 1):
+                        banana_slowdown(other_racer)
+
+            elif 0.2 < action <= 0.4:
+                for other_racer in participants:
+                    if (other_racer.position == racer.position - 1):
+                        banana_slowdown(other_racer)
 
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
