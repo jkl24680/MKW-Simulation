@@ -371,16 +371,14 @@ def three_sec_stun(racer):
         racer.status.remove("3s_stun")
 
 def banana_slowdown(racer):
-    time = 0
     speed = racer.speed
     if ("POW'd" not in racer.status) and ("stunned" not in 
                             racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
         if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.status.remove("sped up")
         if "invulnerable" not in racer.status and "mega" not in racer.status:
-            while time <= 1:
-                racer.speed = 0.5 * speed
-                time += 1
+            racer.speed = 0.5 * speed
+                
 
 # The racer using the item and the list of participants are the input arguments
 '''
