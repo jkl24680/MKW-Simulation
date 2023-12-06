@@ -1,7 +1,13 @@
 import random
 import sys
+import pandas as pd
 
-race_duration = 0
+Race_duration = 0
+Lightning_use_time = 0
+Blooper_use_time = 0
+POW_use_time = 0
+All_possible_unavailable_items = ["lightning_cloud", "lightning_bolt", "POW", "bullet_bill", "blue_shell", "blooper"]
+Unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
 
 # Racer class
 class Racer:
@@ -100,7 +106,7 @@ def update_position(racer1, racer2):
 
     # 50% chance of racers in stars and bullet bills hitting the racers they pass
     action = random.random()
-    time = race_duration.copy()
+    time = Race_duration.copy()
     if "invulnerable" in racer1.status and "bill" not in racer1.status:
         if 0 <= action <= 0.5:
             if ("POW'd" not in racer2.status) and ("stunned" not in racer2.status) and ("1s_stun" 
@@ -114,7 +120,7 @@ def update_position(racer1, racer2):
                 if "invulnerable" not in racer2.status:
                     racer2.status.append("stunned")
                     racer2.status.append("1s_stun")
-                while race_duration <= time + 1 and "stunned" in racer2.status and "1s_stun" in racer2.status:
+                while Race_duration <= time + 1 and "stunned" in racer2.status and "1s_stun" in racer2.status:
                     if racer2.item == "lightning_cloud":
                         racer2.speed = 0
                     else:
@@ -141,7 +147,7 @@ def update_position(racer1, racer2):
                 if "invulnerable" not in racer2.status:
                     racer2.status.append("stunned")
                     racer2.status.append("3s_stun")
-                while race_duration <= time + 3 and "stunned" in racer2.status and "3s_stun" in racer2.status:
+                while Race_duration <= time + 3 and "stunned" in racer2.status and "3s_stun" in racer2.status:
                     if racer2.item == "lightning_cloud":
                         racer2.speed = 0
                     else:
@@ -158,8 +164,8 @@ def update_position(racer1, racer2):
                 racer2.status.remove("sped up")
             if "invulnerable" not in racer2.status and "mega" not in racer2.status:
                 racer2.status.append("squished")
-            while race_duration <= time + 4 and "squished" in racer2.status:
-                if race_duration <= time + 1:
+            while Race_duration <= time + 4 and "squished" in racer2.status:
+                if Race_duration <= time + 1:
                     if racer2.item == "lightning_cloud":
                         racer2.speed = 0
                         racer2.shocked = True
@@ -240,7 +246,7 @@ def update_probabilities(items, probability_list, position):
     return probability_list
 
 
-def get_item(racer, num_racers, Unavailable_items):
+def get_item(racer, num_racers):
     if num_racers == 2:
         if not Unavailable_items or racer.position == 1 or not any(
                 item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
@@ -330,6 +336,8 @@ def get_item(racer, num_racers, Unavailable_items):
             item = choose_item(update_probabilities(Unavailable_items, all_items_12, racer.position), racer.position)
             racer.item = item
 
+
+
 # Stuns the racer for 1 second (used in use_item)
 def one_sec_stun(racer, time):
     
@@ -340,7 +348,7 @@ def one_sec_stun(racer, time):
         if "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.status.append("stunned")
             racer.status.append("1s_stun")
-        while race_duration <= time + 1 and "stunned" in racer.status and "1s_stun" in racer.status:
+        while Race_duration <= time + 1 and "stunned" in racer.status and "1s_stun" in racer.status:
             racer.speed = 0
         if "stunned" in racer.status and "1s_stun" in racer.status:
             racer.status.remove("stunned")
@@ -363,7 +371,7 @@ def three_sec_stun(racer, time):
             racer.status.append("3s_stun")
             if racer.item != "lightning_cloud":
                 racer.item = None
-        while race_duration <= time + 3 and "stunned" in racer.status and "3s_stun" in racer.status:
+        while Race_duration <= time + 3 and "stunned" in racer.status and "3s_stun" in racer.status:
             racer.speed = 0
         racer.status.remove("stunned")
         racer.status.remove("3s_stun")
@@ -388,7 +396,7 @@ The "1s_stun" status is the status used when a racer gets stunned by one of the 
 The "3s_stun" status is the status used when a racer gets stunned by one of the items that stuns for 3 seconds.
 '''
 def use_item(racer, participants):
-    time = race_duration.copy()
+    time = Race_duration.copy()
     # THE LIGHTNING CLOUD IS USED IMMEDIATELY UPON OBTAINING IT, BE AWARE OF THIS IN main()
     # Also the racer won't lose the lightning cloud until it zaps them
     if racer.item == "lightning_cloud":
@@ -398,34 +406,38 @@ def use_item(racer, participants):
             speed = racer.speed  # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
             racer.status.append("TC")
             racer.TC_initial = True
-            while race_duration <= time + 9 and "TC" in racer.status:
+            while Race_duration <= time + 9 and "TC" in racer.status:
                 if "shrunk" in racer.status or "inked" in racer.status or "squished" in racer.status:
-                    if race_duration < time + 5: 
+                    if Race_duration < time + 5: 
                         if (racer.speed != 1.1 * racer.max_speed_slowdown() and "stunned" not in racer.status 
                                 and "sped up" not in racer.status and racer.shocked == False):
                             # Instantaneous acceleration for lightning clouds for the first few seconds
                             racer.speed = 1.1 * racer.max_speed_slowdown()
 
-                    elif (time + 5) <= race_duration <= (time + 6):
+                    elif (time + 5) <= Race_duration <= (time + 6):
                         racer.speed = 0
                         racer.item = None
                         racer.TC_initial = False
                         racer.shocked = True
+                        if "lightning_cloud" in Unavailable_items:
+                            Unavailable_items.remove("lightning_cloud")
                     else:
                         racer.TC_final = True
                         racer.shocked = False
                         if racer.speed != racer.max_speed_slowdown() and "stunned" not in racer.status and racer.shocked == False:
                             update_speed(racer, 1)
                 else:
-                    if race_duration < time + 5: 
+                    if Race_duration < time + 5: 
                         if (racer.speed != 1.1 * racer.max_speed and "stunned" not in racer.status 
                                and "sped up" not in racer.status and racer.shocked == False):
                             racer.speed = 1.1 * racer.max_speed
-                    elif (time + 5) <= race_duration <= (time + 6):
+                    elif (time + 5) <= Race_duration <= (time + 6):
                         racer.speed = 0
                         racer.item = None
                         racer.TC_initial = False
-                        racer.shocked = True                
+                        racer.shocked = True
+                        if "lightning_cloud" in Unavailable_items:
+                            Unavailable_items.remove("lightning_cloud")                
                     else:
                         racer.TC_final = True
                         racer.shocked = False
@@ -441,7 +453,7 @@ def use_item(racer, participants):
     if racer.item == "lightning_bolt":
         # Removes the item from the user's inventory the moment it gets used (that's how it works in the game)
         racer.item = None
-        time_accel2 = 1
+        Lightning_use_time = Race_duration.copy()
         for other_racer in participants:
             if other_racer != racer:
                 if "sped up" in other_racer.status:
@@ -453,8 +465,8 @@ def use_item(racer, participants):
                     pass
                 else:
                     other_racer.status.append("shrunk")
-        while race_duration <= time + 4:
-            if race_duration <= time + 1:
+        while Race_duration <= time + 4:
+            if Race_duration <= time + 1:
                 for other_racer in participants:
                     if "shrunk" in other_racer.status:
 
@@ -489,12 +501,13 @@ def use_item(racer, participants):
     if racer.item == "blooper":
         # Removes the item from the user's inventory the moment it gets used
         racer.item = None
+        Blooper_use_time = Race_duration.copy()
         for other_racer in participants:
             if other_racer.position < racer.position:
                 # Mushrooms override blooper effects
                 if "invulnerable" not in other_racer.status and "mega" not in other_racer.status and "sped up" not in other_racer.status:
                     other_racer.status.append("inked")
-        while race_duration <= time + 5:
+        while Race_duration <= time + 5:
             for other_racer in participants:
                 if "inked" in other_racer.status:
                     if other_racer.TC_initial == True and "shrunk" not in other_racer.status and "squished" not in other_racer.status:
@@ -509,7 +522,7 @@ def use_item(racer, participants):
                     else:
                         if (other_racer.speed != other_racer.max_speed_slowdown() 
                                and "stunned" not in other_racer.status and other_racer.shocked == False):
-                            update_speed(other_racer, time_accel2)
+                            update_speed(other_racer, 1)
 
         for other_racer in participants:
             if "inked" in other_racer.status:
@@ -518,6 +531,7 @@ def use_item(racer, participants):
     if racer.item == "POW":
         # Removes the item from the user's inventory the moment it gets used
         racer.item = None
+        POW_use_time = Race_duration.copy()
         for other_racer in participants:
             if other_racer.position < racer.position and "3s_stun" not in other_racer.status:
 
@@ -533,7 +547,7 @@ def use_item(racer, participants):
                     other_racer.status.append("stunned")
                     other_racer.status.append("POW'd")
                 
-        while race_duration <= time + 2:
+        while Race_duration <= time + 2:
             for other_racer in participants:
                 if "stunned" in other_racer.status and "POW'd" in other_racer.status:
 
@@ -560,7 +574,7 @@ def use_item(racer, participants):
         # Mushrooms remove blooper effects
         if "inked" in racer.status:
             racer.status.remove("inked")
-        while race_duration <= time + 2 and "sped up" in racer.status:
+        while Race_duration <= time + 2 and "sped up" in racer.status:
             
             # To account for mushroom being used when small
             if racer.TC_final == True and "shrunk" not in racer.status and "squished" not in racer.status:
@@ -577,7 +591,7 @@ def use_item(racer, participants):
         racer.status.append("sped up")
         if "inked" in racer.status:
             racer.status.remove("inked")
-        while race_duration <= time + 6 and "sped up" in racer.status:
+        while Race_duration <= time + 6 and "sped up" in racer.status:
             if racer.TC_final == True and "shrunk" not in racer.status and "squished" not in racer.status:
                 racer.speed = 1.5 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "TC" in racer.status or "squished" in racer.status:
@@ -597,7 +611,7 @@ def use_item(racer, participants):
         racer.status.append("sped up")
         if "inked" in racer.status:
             racer.status.remove("inked")
-        while race_duration <= time + 9 and "sped up" in racer.status:
+        while Race_duration <= time + 9 and "sped up" in racer.status:
             if racer.TC_final == True and "shrunk" not in racer.status and "squished" not in racer.status:
                 racer.speed = 1.5 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "TC" in racer.status or "squished" in racer.status:
@@ -620,7 +634,7 @@ def use_item(racer, participants):
         racer.status.append("invulnerable")
         if "inked" in racer.status:
             racer.status.remove("inked")
-        while race_duration <= time + 10 and "bill" not in racer.status:
+        while Race_duration <= time + 10 and "bill" not in racer.status:
             if racer.TC_final == True and "shrunk" not in racer.status and "squished" not in racer.status:
                 racer.speed = 1.3 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "squished" in racer.status:
@@ -648,7 +662,7 @@ def use_item(racer, participants):
         if "squished" in racer.status:
             racer.status.remove("squished")
         speed = racer.speed
-        while race_duration <= time + 10 and "mega" in racer.status:
+        while Race_duration <= time + 10 and "mega" in racer.status:
             if "invulnerable" not in racer.status:
                 racer.speed = 1.1 * racer.max_speed
             else:
@@ -680,10 +694,10 @@ def use_item(racer, participants):
         racer.status.append("bill")
         
         if racer.position == 1:
-            while race_duration <= time + 2:
+            while Race_duration <= time + 2:
                 racer.speed = 2 * racer.max_speed
         else:
-            while race_duration <= time + 8 | racer.racers_passed < 5 | racer.position != 1:
+            while Race_duration <= time + 8 | racer.racers_passed < 5 | racer.position != 1:
                 racer.speed = 2 * racer.max_speed
 
         racer.racers_passed = 0
@@ -692,6 +706,8 @@ def use_item(racer, participants):
 
         # Bullet bills don't disappear from inventory until they run out
         racer.item = None
+        Unavailable_items.remove("bullet_bill")
+
 
     '''
     Code for the rest of the items on this list might not fully work because I'm not sure if
@@ -781,9 +797,12 @@ def use_item(racer, participants):
 
     if racer.item == "blue_shell":
         racer.item = None
+        if "blue_shell" in Unavailable_items:
+            Unavailable_items.remove("blue_shell")
         for other_racer in participants:
             if other_racer.position == 1:
                 three_sec_stun(racer, time)
+        
 
     if racer.item == "red_shell":
         racer.item = None
@@ -1356,10 +1375,23 @@ all_items_2 = [("lightning_cloud", {1: 0, 2: 0.075}),
                ("banana", {1: 0.375, 2: 0.025}),
                ("trip_bananas", {1: 0.1, 2: 0.025})]
 
-def update_race_state(participants, unavailable_items):
-    race_data_distance = {"race_duration": [race_duration]}
-    race_data_speed = {"race_duration": [race_duration]}
-    race_data_position = {"race_duration": [race_duration]}
+def update_race_state(participants, num_racers):
+    race_data_distance = {"Race_duration": [Race_duration]}
+    race_data_speed = {"Race_duration": [Race_duration]}
+    race_data_position = {"Race_duration": [Race_duration]}
+
+    # Accounts for timing rules for items
+    if Race_duration == Lightning_use_time + 30:
+        Unavailable_items.remove("lightning_bolt")
+    
+    if Race_duration == POW_use_time + 20:
+        Unavailable_items.remove("POW")
+    
+    if Race_duration == Blooper_use_time + 15:
+        Unavailable_items.remove("blooper")
+    
+    if Race_duration == 30:
+        Unavailable_items.remove("blue_shell")
 
     for racer in participants:
         update_distance(racer, 1)
@@ -1367,6 +1399,23 @@ def update_race_state(participants, unavailable_items):
         if (racer.speed != racer.max_speed) and (not racer.status):
             update_speed(racer, 1)
 
+        if (1000 <= racer.distance_from_start <= 1100) and (racer.item == None):
+            get_item(racer, num_racers)
+            if racer.item in All_possible_unavailable_items:
+                Unavailable_items.append(racer.item)
+        # Continue this based on how many item boxes there are and where we place them
+
+        race_data_distance[racer.name] = [racer.distance_from_start]
+        race_data_speed[racer.name] = [racer.speed]
+        race_data_position[racer.name] = [racer.position]
+
+    df_distance = pd.DataFrame(race_data_distance)
+    df_speed = pd.DataFrame(race_data_speed)
+    df_position = pd.DataFrame(race_data_position)
+    return df_position, df_speed , df_distance
+        
+    
+    
 # Where all the other functions will get called and where we will create the animation
 def main():
     # Checks if the user inputs an integer between 2 and 12
@@ -1381,7 +1430,7 @@ def main():
     # When a race starts, these 4 items will be unavailable until a certain period of time has passed (check item probability site)
     # WILL NEED TO BE UPDATED THROUGHOUT THE RACE
     # For simplicity, there will be 6 items that can become unavailable: the 4 already on the list and the bullet bill and lightning cloud
-    unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
+    
 
     # Select int(n) racers at random from the list of all racers
     participants = random.sample(all_racers, num_racers)
