@@ -125,7 +125,10 @@ def update_position(racer1, racer2):
                         racer2.speed = 0
                     else:
                         racer2.speed = 0
+                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
+                            Unavailable_items.remove(racer2.item)
                         racer2.item = None
+                        
                 if "stunned" in racer2.status and "1s_stun" in racer2.status:
                     racer2.status.remove("stunned")
                     racer2.status.remove("1s_stun")
@@ -152,6 +155,8 @@ def update_position(racer1, racer2):
                         racer2.speed = 0
                     else:
                         racer2.speed = 0
+                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
+                            Unavailable_items.remove(racer2.item)
                         racer2.item = None
                     time += 1
                 racer2.status.remove("stunned")
@@ -171,6 +176,8 @@ def update_position(racer1, racer2):
                         racer2.shocked = True
                     else:
                         racer2.shocked = True
+                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
+                            Unavailable_items.remove(racer2.item)
                         racer2.item = None
                         racer2.speed = 0
                 else:
@@ -370,6 +377,8 @@ def three_sec_stun(racer, time):
             racer.status.append("stunned")
             racer.status.append("3s_stun")
             if racer.item != "lightning_cloud":
+                if racer.item in All_possible_unavailable_items and racer.item in Unavailable_items:
+                    Unavailable_items.remove(racer.item)
                 racer.item = None
         while Race_duration <= time + 3 and "stunned" in racer.status and "3s_stun" in racer.status:
             racer.speed = 0
@@ -401,6 +410,8 @@ def use_item(racer, participants):
     # Also the racer won't lose the lightning cloud until it zaps them
     if racer.item == "lightning_cloud":
         if "mega" in racer.status or "invulnerable" in racer.status:
+            if "lightning_cloud" in Unavailable_items:
+                Unavailable_items.remove("lightning_cloud")
             racer.item = None
         else:
             speed = racer.speed  # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
@@ -475,6 +486,8 @@ def use_item(racer, participants):
                             other_racer.speed = 0
                             other_racer.shocked = True
                         else:
+                            if other_racer.item in All_possible_unavailable_items and other_racer.item in Unavailable_items:
+                                Unavailable_items.remove(other_racer.item)
                             other_racer.item = None
                             other_racer.speed = 0
                             other_racer.shocked = True
@@ -555,6 +568,8 @@ def use_item(racer, participants):
                     if other_racer.item == "lightning_cloud":
                         other_racer.speed = 0
                     else:
+                        if other_racer.item in All_possible_unavailable_items and other_racer.item in Unavailable_items:
+                            Unavailable_items.remove(other_racer.item)
                         other_racer.item = None
                         other_racer.speed = 0
             
