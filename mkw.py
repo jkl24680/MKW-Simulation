@@ -3,6 +3,8 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from tabulate import tabulate
+import time
 
 Race_duration = 0
 Lightning_use_time = 0
@@ -1417,6 +1419,9 @@ def update_race_state(participants, num_racers):
     race_data_speed = {"Time Elapsed": [Race_duration]}
     race_data_position = {"Time Elapsed": [Race_duration]}
 
+    race_data = pd.DataFrame({'Racer #': [number for number in range(1, num_racers + 1)], 'Racer': [character.name for character in participants], 'Position': [character.position for character in participants],
+                              'Speed': [character.speed for character in participants], 'Item': [character.item for character in participants], 
+                              'Distance': [character.distance_from_start for character in participants]}).set_index("Racer #")
     # Accounts for timing rules for items
     if Race_duration == Lightning_use_time + 30:
         Unavailable_items.remove("lightning_bolt")
@@ -1451,11 +1456,15 @@ def update_race_state(participants, num_racers):
         race_data_distance[racer.name] = [racer.distance_from_start]
         race_data_speed[racer.name] = [racer.speed]
         race_data_position[racer.name] = [racer.position]
-
+        index = race_data.Racer[race_data.Racer == racer.name].index.tolist()
+        race_data.Position[index] = racer.position
+        race_data.Speed[index] = racer.speed
+        race_data.Item[index] = racer.item
+        race_data.Distance[index] = racer.distance_from_start
     df_distance = pd.DataFrame(race_data_distance)
     df_speed = pd.DataFrame(race_data_speed)
     df_position = pd.DataFrame(race_data_position)
-    return df_position, df_speed, df_distance
+    return df_position, df_speed, df_distance, race_data
         
 def run_race_simulation(participants, num_racers):
     global df_position, df_speed, df_distance, Race_duration
@@ -1467,11 +1476,13 @@ def run_race_simulation(participants, num_racers):
         Race_duration += 1
         
         
-        race_data_position, race_data_speed, race_data_distance = update_race_state(participants, num_racers)
+        race_data_position, race_data_speed, race_data_distance, race_data = update_race_state(participants, num_racers)
         df_distance = pd.concat([df_distance, race_data_distance], ignore_index=True)
         df_speed = pd.concat([df_speed, race_data_speed], ignore_index=True)
         df_position = pd.concat([df_position, race_data_position], ignore_index=True)
-        
+        print(tabulate(race_data, headers="keys", tablefmt='psql'))
+
+        time.sleep(0.5)
         
         for racer in participants:
             if racer.distance_from_start >= finish_line and racer.finished == False:
@@ -1537,9 +1548,6 @@ def main():
 
     
     plt.show()
-    print(df_distance)
-    print(df_speed)
-    print(df_position)
 
     if len(df_distance) < 2000:
         for racer in participants:
