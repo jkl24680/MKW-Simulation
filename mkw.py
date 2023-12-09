@@ -12,7 +12,7 @@ Lightning_use_time = 0
 Blooper_use_time = 0
 POW_use_time = 0
 All_possible_unavailable_items = ["lightning_cloud", "lightning_bolt", "POW", "bullet_bill", "blue_shell", "blooper"]
-Unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
+Unavailable_items = ["lightning_bolt", "POW", "blue_shell", "blooper"]
 
 
 # Racer class
@@ -83,12 +83,16 @@ class Racer:
         self.time_delay = 0
 
         self.using_item = False
+        self.action = None
 
         # To account for a very specific scenario in this a racer gets zapped by lightning bolt or lightning cloud when they're
         # already shrunk or squished. Since self.status is a list, we can't simply append "stunned" to the list since everything is in a while
         # loop and multiple "stunned" will be appended, which we don't want.
         self.shocked = False
 
+        self.marker = 0
+        self.user_marker = 0
+    
         # Stores whether a racer with a lightning cloud is currently in the initial phase where they speed up
         # or in the final phase where they are shocked and slowed down
         # Mainly used to account for very specific scenarios that have potential to break the code
@@ -121,113 +125,6 @@ def max_speed_slowdown(racer):
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
 
-    '''
-    global Unavailable_items
-    # 50% chance of racers in stars and bullet bills hitting the racers they pass
-    action = random.random()
-    use_time = 0
-    if "invulnerable" in racer1.status and "bill" not in racer1.status:
-        if 0 <= action <= 0.5:
-            if ("POW'd" not in racer2.status) and ("stunned" not in racer2.status) and ("1s_stun"
-                                                                                        not in racer2.status) and "3s_stun" not in racer2.status:
-                if "sped up" in racer2.status and "invulnerable" not in racer2.status:
-                    racer2.status.remove("sped up")
-
-                # Normally the star wouldn't take away the mega effect, but let's make things easier for ourselves
-                if "mega" in racer2.status and "invulnerable" not in racer2.status:
-                    racer2.status.remove("mega")
-                if "invulnerable" not in racer2.status:
-                    racer2.status.append("stunned")
-                    racer2.status.append("1s_stun")
-                while use_time <= 1 and "stunned" in racer2.status and "1s_stun" in racer2.status:
-                    if racer2.item == "lightning_cloud":
-                        racer2.speed = 0
-                    else:
-                        racer2.speed = 0
-                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
-                            Unavailable_items.remove(racer2.item)
-                        racer2.item = None
-                    time.sleep(1)
-                    use_time += 1
-                    
-                if "stunned" in racer2.status and "1s_stun" in racer2.status:
-                    racer2.status.remove("stunned")
-                    racer2.status.remove("1s_stun")
-
-    if "bill" in racer1.status:
-        racer1.racers_passed += 1
-        if 0 <= action <= 0.5:
-            if "3s_stun" not in racer2.status:
-                if "mega" in racer2.status and "invulnerable" not in racer2.status:
-                    racer2.status.remove("mega")
-                if "stunned" in racer2.status:
-                    racer2.status.remove("stunned")
-                if "1s_stun" in racer2.status:
-                    racer2.status.remove("1s_stun")
-                if "POW'd" in racer2.status:
-                    racer2.status.remove("POW'd")
-                if "sped up" in racer2.status and "invulnerable" not in racer2.status:
-                    racer2.status.remove("sped up")
-                if "invulnerable" not in racer2.status:
-                    racer2.status.append("stunned")
-                    racer2.status.append("3s_stun")
-                while use_time <= 3 and "stunned" in racer2.status and "3s_stun" in racer2.status:
-                    if racer2.item == "lightning_cloud":
-                        racer2.speed = 0
-                    else:
-                        racer2.speed = 0
-                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
-                            Unavailable_items.remove(racer2.item)
-                        racer2.item = None
-                    
-                    time.sleep(1)
-                    use_time += 1
-                    
-                racer2.status.remove("stunned")
-                racer2.status.remove("3s_stun")
-
-    if "mega" in racer1.status and "invulnerable" not in racer1.status:
-        if 0 <= action <= 0.5:
-
-            if "sped up" in racer2.status:
-                racer2.status.remove("sped up")
-            if "invulnerable" not in racer2.status and "mega" not in racer2.status:
-                racer2.status.append("squished")
-            while use_time <= 4 and "squished" in racer2.status:
-                if use_time <= 1:
-                    if racer2.item == "lightning_cloud":
-                        racer2.speed = 0
-                        racer2.shocked = True
-                    else:
-                        racer2.shocked = True
-                        if racer2.item in All_possible_unavailable_items and racer2.item in Unavailable_items:
-                            Unavailable_items.remove(racer2.item)
-                        racer2.item = None
-                        racer2.speed = 0
-                else:
-                    racer2.shocked = False
-                    if "squished" in racer2.status:
-                        if racer2.TC_initial == True and "shrunk" not in racer2.status and "inked" not in racer2.status:
-                            if (racer2.speed != 0.35 * 1.1 * racer2.max_speed
-                                    and "stunned" not in racer2.status and racer2.shocked == False):
-                                racer2.speed = 0.35 * 1.1 * racer2.max_speed
-                        elif racer2.TC_initial == True and ("shrunk" in racer2.status or "inked" in racer2.status):
-                            if (racer2.speed != 1.1 * max_speed_slowdown(racer2)
-                                    and "stunned" not in racer2.status and racer2.shocked == False):
-                                racer2.speed = 1.1 * max_speed_slowdown(racer2)
-                        elif racer2.TC_final == True and "shrunk" not in racer2.status:
-                            if racer2.speed != 0.35 * max_speed_slowdown(
-                                    racer2) and "stunned" not in racer2.status and racer2.shocked == False:
-                                update_speed(racer2, 1)
-                        else:
-                            if racer2.speed != max_speed_slowdown(racer2) and "stunned" not in racer2.status and racer2.shocked == False:
-                                update_speed(racer2, 1) 
-                time.sleep(1)
-                use_time += 1 
-                
-            if "squished" in racer2.status:
-                racer2.status.remove("squished")
-    '''
 def update_distance(racer, use_time):
     # Changes the distance the racer has traveled in a certain use_time (in this case I used 1 second, but we can change
     # it based on how the race looks and the processing power of our computers). This also assumes the racer speeds
@@ -378,48 +275,53 @@ def one_sec_stun(original_racer, racer):
     if Race_duration <= original_racer.time_item_used + 1: 
         if ("POW'd" not in racer.status) and ("stunned" not in 
                                 racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
-            if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
-                racer.status.remove("sped up")
             if "invulnerable" not in racer.status and "mega" not in racer.status:
                 
                 racer.status.append("stunned")
                 racer.status.append("1s_stun")
         racer.speed = 0      
     elif Race_duration > original_racer.time_item_used + 1:    
-        if "stunned" in racer.status and "1s_stun" in racer.status:
+        if "stunned" in racer.status and "1s_stun" in racer.status and racer.marker == 1:
             racer.status.remove("stunned")
             racer.status.remove("1s_stun")
+            racer.marker = 0
+        original_racer.user_marker = 0
         original_racer.using_item = False
+        original_racer.action = None
         original_racer.recently_used_item = None
 
 
 # Stuns the racer for 3 seconds (used in use_item)
 def three_sec_stun(original_racer, racer):
     if Race_duration <= original_racer.time_item_used + 3:
-        if "3s_stun" not in racer.status:
-            if "stunned" in racer.status:
+        if "stunned" and "3s_stun" not in racer.status:
+            if "stunned" in racer.status and "1s_stun" in racer.status:
                 racer.status.remove("stunned")
-            if "1s_stun" in racer.status:
                 racer.status.remove("1s_stun")
-            if "POW'd" in racer.status:
+            if "stunned" in racer.status and "POW'd" in racer.status:
+                racer.status.remove("stunned")
                 racer.status.remove("POW'd")
             if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
                 racer.status.remove("sped up")
+                racer.item = None
+                racer.using_item = False
+                racer.recently_used_item = None
             if "invulnerable" not in racer.status and "mega" not in racer.status:
                 if racer.item != "lightning_cloud":
                     if racer.item in All_possible_unavailable_items and racer.item in Unavailable_items:
                         Unavailable_items.remove(racer.item)
                     racer.item = None
-                    racer.using_item = False
-                    racer.recently_used_item = None
-                
                 racer.status.append("stunned")
                 racer.status.append("3s_stun")
         racer.speed = 0
     elif Race_duration > original_racer.time_item_used + 3:
-        racer.status.remove("stunned")
-        racer.status.remove("3s_stun")
+        if "stunned" in racer.status and "3s_stun" in racer.status and racer.marker == 3:
+            racer.status.remove("stunned")
+            racer.status.remove("3s_stun")
+            racer.marker = 0
+        original_racer.user_marker = 0
         original_racer.using_item = False
+        original_racer.action = None
         original_racer.recently_used_item = None
 
 
@@ -610,9 +512,8 @@ def use_item(racer, participants):
 
                     # Remove "stunned" from the status list if racer is currently stunned from a shell or FIB
                     # and then readd it to ensure the code doesn't break
-                    if "stunned" in other_racer.status:
+                    if "stunned" in other_racer.status and "1s_stun" in other_racer.status:
                         other_racer.status.remove("stunned")
-                    if "1s_stun" in other_racer.status:
                         other_racer.status.remove("1s_stun")
                     if "sped up" in other_racer.status and "invulnerable" not in other_racer.status and "mega" not in other_racer.status:
                         other_racer.status.remove("sped up")
@@ -661,6 +562,8 @@ def use_item(racer, participants):
                 racer.speed = 1.5 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "squished" in racer.status:
                 racer.speed = 1.5 * max_speed_slowdown(racer)
+            elif "stunned" in racer.status:
+                racer.speed = 0
             else:
                 racer.speed = 1.5 * racer.max_speed
         elif Race_duration > racer.time_item_used + 2:
@@ -679,6 +582,8 @@ def use_item(racer, participants):
                 racer.speed = 1.5 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "TC" in racer.status or "squished" in racer.status:
                 racer.speed = 1.5 * max_speed_slowdown(racer)
+            elif "stunned" in racer.status:
+                racer.speed = 0
             else:
                 racer.speed = 1.5 * racer.max_speed
         elif Race_duration > racer.time_item_used + 6:
@@ -701,6 +606,8 @@ def use_item(racer, participants):
                 racer.speed = 1.5 * 0.35 * racer.max_speed
             elif "shrunk" in racer.status or "TC" in racer.status or "squished" in racer.status:
                 racer.speed = 1.5 * max_speed_slowdown(racer)
+            elif "stunned" in racer.status:
+                racer.speed = 0
             else:
                 racer.speed = 1.5 * racer.max_speed
         elif Race_duration > racer.time_item_used + 9:    
@@ -783,7 +690,7 @@ def use_item(racer, participants):
                     racer.status.append("invulnerable")
                 racer.status.append("bill")
         else:
-            if Race_duration <= racer.time_item_used + 8 and racer.racers_passed < 5 and racer.position != 1:
+            if Race_duration <= racer.time_item_used + 8 and racer.racers_passed < 5 and racer.position != 1 and "bill" not in racer.status:
                 if "inked" in racer.status:
                     racer.status.remove("inked")
                 if "mega" in racer.status:
@@ -836,254 +743,395 @@ def use_item(racer, participants):
     '''
     if racer.recently_used_item == "green_shell":
         racer.item = None
-        action = random.random()
-        if racer.position == 1:
-            if 0 <= action <= 0.4:
-                for other_racer in participants:
 
-                    if (other_racer.position == racer.position + 1):
+        if racer.action == None:
+            racer.action = random.random()
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 2 and racer.position != 1 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+        
+        if racer.user_marker == 4:
+            if 0 <= racer.action <= 0.4:
+                for other_racer in participants:
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-        elif racer.position == len(participants):
-            if 0 <= action <= 0.4:
+        elif racer.user_marker == 5:
+            if 0 <= racer.action <= 0.4:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
         else:
-            if 0 <= action <= 0.3:
+            if 0 <= racer.action <= 0.3:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.3 < action <= 0.6:
+            elif 0.3 < racer.action <= 0.6:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
 
     if racer.recently_used_item == "trip_green_shell":
         racer.item = None
-        action = random.random()
-        if racer.position == 1:
-            if 0 <= action <= 0.5:
+        if racer.action == None:
+            racer.action = random.random()
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 2 and racer.position != 1 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+
+        if racer.user_marker == 4:
+            if 0 <= racer.action <= 0.5:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
+                        one_sec_stun(racer, other_racer)
+            elif 0.5 < racer.action <= 0.9:
+                for other_racer in participants:
+                    if Race_duration == racer.time_item_used:
+                        if other_racer.position == racer.position + 1:
+                            kart1 = other_racer
+                            everyone_else = [r for r in participants if r != kart1]
+                            kart = random.choice(everyone_else)
+                            if kart.marker not in [1, 2, 3]:
+                                kart.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.5 < action <= 0.9:
+        elif racer.user_marker == 5:
+            if 0 <= racer.action <= 0.5:
                 for other_racer in participants:
-                    if other_racer.position == racer.position + 1:
-                        kart1 = other_racer
-                everyone_else = [r for r in participants if r != kart1]
-                kart = random.choice(everyone_else)
-                one_sec_stun(racer, kart)
-
-        elif racer.position == len(participants):
-            if 0 <= action <= 0.5:
-                for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.5 < action <= 0.9:
+            elif 0.5 < racer.action <= 0.9:
                 for other_racer in participants:
-                    if other_racer.position == racer.position - 1:
-                        kart1 = other_racer
-                everyone_else = [r for r in participants if (r != kart1)]
-                kart = random.choice(everyone_else)
-                one_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if other_racer.position == racer.position - 1:
+                            kart1 = other_racer
+                            everyone_else = [r for r in participants if r != kart1]
+                            kart = random.choice(everyone_else)
+                            if kart.marker not in [1, 2, 3]:
+                                kart.marker = 1
+                    if other_racer.marker == 1:
+                        one_sec_stun(racer, other_racer)
 
         else:
-            if 0 <= action <= 0.35:
+            if 0 <= racer.action <= 0.35:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.35 < action <= 0.7:
+            elif 0.35 < racer.action <= 0.7:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.7 < action <= 0.9:
+            elif 0.7 < racer.action <= 0.9:
                 for other_racer in participants:
-                    if other_racer.position == racer.position + 1:
-                        kart1 = other_racer
-                    if other_racer.position == racer.position - 1:
-                        kart2 = other_racer
-                everyone_else = [r for r in participants if (r != kart1 and r != kart2)]
-                kart = random.choice(everyone_else)
-                one_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        unaffected = []
+                        if other_racer.position == racer.position + 1:
+                            unaffected.append(other_racer)
+                        if other_racer.position == racer.position - 1:
+                            unaffected.append(other_racer)
+                        everyone_else = [r for r in participants if r not in unaffected]
+                        kart = random.choice(everyone_else)
+                        if kart.marker not in [1, 2, 3]:
+                            kart.marker = 1
+                    if other_racer.marker == 1:
+                        one_sec_stun(racer, other_racer)
 
     if racer.recently_used_item == "blue_shell":
         racer.item = None
         if "blue_shell" in Unavailable_items:
             Unavailable_items.remove("blue_shell")
         for other_racer in participants:
-            if other_racer.position == 1:
+            if Race_duration == racer.time_item_used:
+                if other_racer.position == 1 and other_racer.marker != 3:
+                    other_racer.marker = 3
+            if other_racer.marker == 3:
                 three_sec_stun(racer, other_racer)
         
     if racer.recently_used_item == "red_shell":
         racer.item = None
-        action = random.random()
-        if racer.position == 1:
-            if 0 <= action <= 0.3:
+        if racer.action == None:
+            racer.action = random.random()
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 2 and racer.position != 1 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+
+        if racer.user_marker == 4:
+            if 0 <= racer.action <= 0.3:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-        elif racer.position == len(participants):
-            if 0 <= action <= 0.7:
+        elif racer.user_marker == 5:
+            if 0 <= racer.action <= 0.7:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
         else:
-            if 0 <= action <= 0.65:
+            if 0 <= racer.action <= 0.65:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.65 < action <= 0.85:
+            elif 0.65 < racer.action <= 0.85:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
     if racer.recently_used_item == "trip_red_shell":
         racer.item = None
-        action = random.random()
+        if racer.action == None:
+            racer.action = random.random()
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 2 and racer.position == 2 and racer.user_marker == 0:
+            racer.user_marker = 2
+        elif len(participants) > 3 and racer.position != 1 and racer.position != 2 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+
         if len(participants) >= 3:
-            if racer.position == 1:
-                if 0 <= action <= 0.4:
+            if racer.user_marker == 4:
+                if 0 <= racer.action <= 0.4:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position + 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
-                elif 0.4 < action <= 0.65:
+                elif 0.4 < racer.action <= 0.65:
                     for other_racer in participants:
-                        if other_racer.position == racer.position + 1:
-                            kart1 = other_racer
-                    everyone_else = [r for r in participants if r != kart1 and r != racer]
-                    kart = random.choice(everyone_else)
-                    one_sec_stun(racer, kart)
-
-            elif racer.position == len(participants):
-                if 0 <= action <= 0.6:
-                    for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
-                            one_sec_stun(racer, other_racer)
-                        if (other_racer.position == racer.position - 2):
+                        if Race_duration == racer.time_item_used:
+                            if other_racer.position == racer.position + 1:
+                                kart1 = other_racer
+                                everyone_else = [r for r in participants if r != kart1]
+                                kart = random.choice(everyone_else)
+                                if kart.marker not in [1, 2, 3]:
+                                    kart.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
-                elif 0.6 < action < 0.95:
+            elif racer.user_marker == 5:
+                if 0 <= racer.action <= 0.6:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                            if (other_racer.position == racer.position - 2) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
+                            one_sec_stun(racer, other_racer)
+                       
+                elif 0.6 < racer.action < 0.95:
+                    for other_racer in participants:
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
-            elif racer.position == 2:
-                if 0 <= action <= 0.75:
+            elif racer.user_marker == 2:
+                if 0 <= racer.action <= 0.75:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
-                elif 0.75 < action <= 0.95:
+                elif 0.75 < racer.action <= 0.95:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position + 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
             else:
-                if 0 <= action <= 0.6:
+                if 0 <= racer.action <= 0.6:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
-                            one_sec_stun(racer, other_racer)
-
-                        if (other_racer.position == racer.position - 2):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                            if (other_racer.position == racer.position - 2) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
                             
-                elif 0.6 < action <= 0.85:
+                elif 0.6 < racer.action <= 0.85:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
-                elif 0.85 < action <= 0.95:
+                elif 0.85 < racer.action <= 0.95:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position + 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
         else:
-            if racer.position == 1:
-                if 0 <= action <= 0.4:
+            if racer.user_marker == 4:
+                if 0 <= racer.action <= 0.4:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position + 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
             else:
-                if 0 <= action <= 0.8:
+                if 0 <= racer.action <= 0.8:
                     for other_racer in participants:
-                        if (other_racer.position == racer.position - 1):
+                        if Race_duration == racer.time_item_used:
+                            if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                                other_racer.marker = 1
+                        if other_racer.marker == 1:
                             one_sec_stun(racer, other_racer)
 
     if racer.recently_used_item == "FIB":
         racer.item = None
-        action = random.random()
-        if racer.position == 1:
-            if 0 <= action <= 0.35:
+        if racer.action == None:
+            racer.action = random.random()
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 2 and racer.position != 1 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+        if racer.user_marker == 4:
+            if 0 <= racer.action <= 0.35:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-        elif racer.position == len(participants):
-            if 0 <= action <= 0.35:
+        elif racer.user_marker == 5:
+            if 0 <= racer.action <= 0.35:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
         else:
-            if 0 <= action <= 0.25:
+            if 0 <= racer.action <= 0.25:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)
 
-            elif 0.25 < action <= 0.5:
+            elif 0.25 < racer.action <= 0.5:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker not in [1, 2, 3]:
+                            other_racer.marker = 1
+                    if other_racer.marker == 1:
                         one_sec_stun(racer, other_racer)      
 
     if racer.recently_used_item == "banana":
         racer.item = None
-        action = random.random()
+        if racer.action == None:
+            racer.action = random.random()
         if racer.position == 1:
-            if 0 <= action <= 0.3:
+            if 0 <= racer.action <= 0.3:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1):
                         banana_slowdown(other_racer)
 
         elif racer.position == len(participants):
-            if 0 <= action <= 0.3:
+            if 0 <= racer.action <= 0.3:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
                         banana_slowdown(other_racer)
 
         else:
-            if 0 <= action <= 0.2:
+            if 0 <= racer.action <= 0.2:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1):
                         banana_slowdown(other_racer)
 
-            elif 0.2 < action <= 0.4:
+            elif 0.2 < racer.action <= 0.4:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
                         banana_slowdown(other_racer)
         racer.using_item = False
+        racer.action = None
         racer.recently_used_item = None
 
-    if racer.item == "trip_bananas":
+
+    if racer.recently_used_item == "trip_bananas":
         racer.item = None
-        action = random.random()
+        if racer.action == None:
+            racer.action = random.random()
         if racer.position == 1:
-            if 0 <= action <= 0.4:
+            if 0 <= racer.action <= 0.4:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1):
                         banana_slowdown(other_racer)
 
-            elif 0.4 < action <= 0.7:
+            elif 0.4 < racer.action <= 0.7:
                 back_three = []
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1 or
@@ -1093,12 +1141,12 @@ def use_item(racer, participants):
                 banana_slowdown(kart)
 
         elif racer.position == len(participants):
-            if 0 <= action <= 0.4:
+            if 0 <= racer.action <= 0.4:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
                         banana_slowdown(other_racer)
 
-            elif 0.4 < action <= 0.7:
+            elif 0.4 < racer.action <= 0.7:
                 front_three = []
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1 or
@@ -1108,17 +1156,17 @@ def use_item(racer, participants):
                 banana_slowdown(kart)
 
         else:
-            if 0 <= action <= 0.25:
+            if 0 <= racer.action <= 0.25:
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1):
                         banana_slowdown(other_racer)
 
-            elif 0.25 < action <= 0.5:
+            elif 0.25 < racer.action <= 0.5:
                 for other_racer in participants:
                     if (other_racer.position == racer.position - 1):
                         banana_slowdown(other_racer)
 
-            elif 0.5 < action <= 0.7:
+            elif 0.5 < racer.action <= 0.7:
                 within_three = []
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2 or
@@ -1128,101 +1176,122 @@ def use_item(racer, participants):
                 kart = random.choice(within_three)
                 banana_slowdown(kart)
         racer.using_item = False
+        racer.action = None
         racer.recently_used_item = None
 
-    if racer.item == "bob_omb":
+    if racer.recently_used_item == "bob_omb":
         racer.item = None
-        action = random.random()
-        if racer.position == 1:
-            if 0 <= action <= 0.5:
+        if racer.action == None:
+            racer.action = random.random()
+
+        if racer.position == 1 and racer.user_marker == 0:
+            racer.user_marker = 4
+        elif racer.position == len(participants) and racer.user_marker == 0:
+            racer.user_marker = 5
+        elif len(participants) > 3 and racer.position != 1 and racer.position != 2 and racer.position != len(participants) and racer.user_marker == 0:
+            racer.user_marker = 6
+        if racer.user_marker == 4:
+            if 0 <= racer.action <= 0.5:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
                         three_sec_stun(racer, other_racer)
             
-            elif 0.5 < action <= 0.8:
-                back_two = []
+            elif 0.5 < racer.action <= 0.8:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2):
-                        back_two.append(other_racer)
-                for kart in back_two:
-                    three_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
             
-            elif 0.8 < action <= 0.9:
-                back_three = []
+            elif 0.8 < racer.action <= 0.9:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or
-                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
-                        back_three.append(other_racer)
-                for kart in back_three:
-                    three_sec_stun(racer, kart)
-
-        elif racer.position == len(participants):
-            if 0 <= action <= 0.5:
-                for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1 or 
+                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
                         three_sec_stun(racer, other_racer)
 
-            elif 0.5 < action <= 0.8:
-                front_two = []
+        elif racer.user_marker == 5:
+            if 0 <= racer.action <= 0.5:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2):
-                        front_two.append(other_racer)
-                for kart in front_two:
-                    three_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
+
+            elif 0.5 < racer.action <= 0.8:
+                for other_racer in participants:
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
             
-            elif 0.8 < action <= 0.9:
-                front_three = []
+            elif 0.8 < racer.action <= 0.9:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or
-                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
-                        front_three.append(other_racer)
-                for kart in front_three:
-                    three_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
 
         else:
-            if 0 <= action <= 0.2:
+            if 0 <= racer.action <= 0.2:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
                         three_sec_stun(racer, other_racer)
             
-            elif 0.2 < action <= 0.35:
-                front_two = []
+            elif 0.2 < racer.action <= 0.35:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2):
-                        front_two.append(other_racer)
-                for kart in front_two:
-                    three_sec_stun(racer, kart)
-
-            elif 0.35 < action <= 0.45:
-                front_three = []
-                for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or
-                            other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
-                        front_three.append(other_racer)
-                for kart in front_three:
-                    three_sec_stun(racer, kart)
-
-            elif 0.45 < action <= 0.65:
-                for other_racer in participants:
-                    if (other_racer.position == racer.position + 1):
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1 or other_racer.position == racer.position - 2) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
                         three_sec_stun(racer, other_racer)
 
-            elif 0.65 < action <= 0.8:
-                back_two = []
+            elif 0.35 < racer.action <= 0.45:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2):
-                        back_two.append(other_racer)
-                for kart in back_two:
-                    three_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position - 1 or 
+                                other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
 
-            elif 0.8 < action <= 0.9:
-                back_three = []
+            elif 0.45 < racer.action <= 0.65:
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or
-                            other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
-                        back_three.append(other_racer)
-                for kart in back_three:
-                    three_sec_stun(racer, kart)
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
+
+            elif 0.65 < racer.action <= 0.8:
+                for other_racer in participants:
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
+
+            elif 0.8 < racer.action <= 0.9:
+                for other_racer in participants:
+                    if Race_duration == racer.time_item_used:
+                        if (other_racer.position == racer.position + 1 or 
+                                other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3) and other_racer.marker != 3:
+                            other_racer.marker = 3
+                    if other_racer.marker == 3:
+                        three_sec_stun(racer, other_racer)
 
 
 mario = Racer("Mario", "Medium")
@@ -1501,7 +1570,7 @@ all_items_2 = [("lightning_cloud", {1: 0, 2: 0.075}),
 
 
 def update_race_state(participants, num_racers):
-    global Unavailable_items
+    global Unavailable_items, Blooper_use_time, POW_use_time, Lightning_use_time
     race_data_distance = {"Time Elapsed": [Race_duration]}
     race_data_speed = {"Time Elapsed": [Race_duration]}
     race_data_position = {"Time Elapsed": [Race_duration]}
@@ -1541,21 +1610,60 @@ def update_race_state(participants, num_racers):
             update_speed(racer, 1)
 
         
-        if (200 <= racer.distance_from_start <= 300) and (racer.item == None):
+        if (200 <= racer.distance_from_start <= 250) and (racer.item == None):
             get_item(racer, num_racers)
             racer.time_item_got = Race_duration
             racer.time_delay = random.randint(3, 5)
-            if racer.item in All_possible_unavailable_items:
+            if racer.item in All_possible_unavailable_items and racer.item not in Unavailable_items:
+                Unavailable_items.append(racer.item)
+        if (800 <= racer.distance_from_start <= 850) and (racer.item == None):
+            get_item(racer, num_racers)
+            racer.time_item_got = Race_duration
+            racer.time_delay = random.randint(3, 5)
+            if racer.item in All_possible_unavailable_items and racer.item not in Unavailable_items:
+                Unavailable_items.append(racer.item)
+        
+        if (1200 <= racer.distance_from_start <= 1250) and (racer.item == None):
+            get_item(racer, num_racers)
+            racer.time_item_got = Race_duration
+            racer.time_delay = random.randint(3, 5)
+            if racer.item in All_possible_unavailable_items and racer.item not in Unavailable_items:
                 Unavailable_items.append(racer.item)
 
         # Continue this based on how many item boxes there are and where we place them
-        if Race_duration == racer.time_item_got + racer.time_delay and racer.item != None and racer.using_item == False:
-            racer.recently_used_item = racer.item
-            racer.time_item_used = Race_duration
-            racer.using_item = True
+
+
+        if racer.item == "lightning_cloud":
+            if Race_duration == racer.time_item_got + 1 and racer.item != None and racer.using_item == False:
+                racer.recently_used_item = racer.item
+                racer.time_item_used = Race_duration
+                racer.using_item = True
+        else:
+            if (Race_duration == racer.time_item_got + racer.time_delay) or (
+                Race_duration == racer.time_item_got + 2 * racer.time_delay) and racer.item != None and racer.using_item == False:
+                racer.recently_used_item = racer.item
+                racer.time_item_used = Race_duration
+                racer.using_item = True
+            
         if racer.recently_used_item != None:
             use_item(racer, participants)
 
+        if "stunned" in racer.status and ("1s_stun" in racer.status and "3s_stun" in racer.status):
+            racer.status.remove("stunned")
+            racer.status.remove("1s_stun")
+            racer.status.remove("3s_stun")
+        
+        if "stunned" in racer.status and "3s_stun" in racer.status and "invulnerable" in racer.status:
+            racer.status.remove("stunned")
+            racer.status.remove("3s_stun")
+            racer.status.remove("invulnerable")
+
+        if "stunned" in racer.status and "1s_stun" in racer.status and "invulnerable" in racer.status:
+            racer.status.remove("stunned")
+            racer.status.remove("1s_stun")
+            racer.status.remove("invulnerable")
+
+        
         race_data_distance[racer.name] = [racer.distance_from_start]
         race_data_speed[racer.name] = [racer.speed]
         race_data_position[racer.name] = [racer.position]
@@ -1592,6 +1700,7 @@ def run_race_simulation(participants, num_racers):
         df_position = pd.concat([df_position, race_data_position], ignore_index=True)
         print(tabulate(race_data, headers='keys', tablefmt='psql'))
        
+        print(Unavailable_items)
         time.sleep(1)
         
         for racer in participants:
