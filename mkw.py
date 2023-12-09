@@ -14,6 +14,7 @@ POW_use_time = 0
 All_possible_unavailable_items = ["lightning_cloud", "lightning_bolt", "POW", "bullet_bill", "blue_shell", "blooper"]
 Unavailable_items = ["blooper", "blue_shell", "POW", "lightning_bolt"]
 
+
 # Racer class
 class Racer:
     def __init__(self, name, weight):
@@ -95,25 +96,27 @@ class Racer:
         self.TC_final = False
 
         self.finished = False
-        
+
+
 # For very specifc scnearios where a racer has at least one of these status and needs to accelerate
 # to their max speed based on which ones they have
 def max_speed_slowdown(racer):
-    if ("shrunk" in racer.status and "inked" not in racer.status and "squished" not in racer.status) or ("squished" in 
-                    racer.status and "shrunk" not in racer.status and "inked" not in racer.status):
+    if ("shrunk" in racer.status and "inked" not in racer.status and "squished" not in racer.status) or ("squished" in
+                                                                                                         racer.status and "shrunk" not in racer.status and "inked" not in racer.status):
         speed = 0.35 * racer.max_speed
     elif "inked" in racer.status and "shrunk" not in racer.status and "squished" not in racer.status:
         speed = 0.9 * racer.max_speed
     elif ("shrunk" in racer.status and "inked" in racer.status and "squished" not in racer.status) or ("squished" in
-                    racer.status and "inked" in racer.status and "shrunk" not in racer.status):
+                                                                                                       racer.status and "inked" in racer.status and "shrunk" not in racer.status):
         speed = 0.35 * 0.9 * racer.max_speed
     elif "shrunk" in racer.status and "squished" in racer.status and "inked" not in racer.status:
         speed = 0.35 * 0.35 * racer.max_speed
     elif "shrunk" in racer.status and "inked" in racer.status and "squished" in racer.status:
         speed = 0.35 * 0.35 * 0.9 * racer.max_speed
-    else: 
+    else:
         speed = racer.max_speed
     return speed
+
 
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
@@ -125,11 +128,11 @@ def update_position(racer1, racer2):
     use_time = 0
     if "invulnerable" in racer1.status and "bill" not in racer1.status:
         if 0 <= action <= 0.5:
-            if ("POW'd" not in racer2.status) and ("stunned" not in racer2.status) and ("1s_stun" 
-                                                    not in racer2.status) and "3s_stun" not in racer2.status:
+            if ("POW'd" not in racer2.status) and ("stunned" not in racer2.status) and ("1s_stun"
+                                                                                        not in racer2.status) and "3s_stun" not in racer2.status:
                 if "sped up" in racer2.status and "invulnerable" not in racer2.status:
                     racer2.status.remove("sped up")
-                
+
                 # Normally the star wouldn't take away the mega effect, but let's make things easier for ourselves
                 if "mega" in racer2.status and "invulnerable" not in racer2.status:
                     racer2.status.remove("mega")
@@ -185,7 +188,7 @@ def update_position(racer1, racer2):
 
     if "mega" in racer1.status and "invulnerable" not in racer1.status:
         if 0 <= action <= 0.5:
-        
+
             if "sped up" in racer2.status:
                 racer2.status.remove("sped up")
             if "invulnerable" not in racer2.status and "mega" not in racer2.status:
@@ -205,16 +208,17 @@ def update_position(racer1, racer2):
                     racer2.shocked = False
                     if "squished" in racer2.status:
                         if racer2.TC_initial == True and "shrunk" not in racer2.status and "inked" not in racer2.status:
-                            if (racer2.speed != 0.35 * 1.1 * racer2.max_speed 
-                                   and "stunned" not in racer2.status and racer2.shocked == False):
+                            if (racer2.speed != 0.35 * 1.1 * racer2.max_speed
+                                    and "stunned" not in racer2.status and racer2.shocked == False):
                                 racer2.speed = 0.35 * 1.1 * racer2.max_speed
                         elif racer2.TC_initial == True and ("shrunk" in racer2.status or "inked" in racer2.status):
                             if (racer2.speed != 1.1 * max_speed_slowdown(racer2)
-                                   and "stunned" not in racer2.status and racer2.shocked == False):
+                                    and "stunned" not in racer2.status and racer2.shocked == False):
                                 racer2.speed = 1.1 * max_speed_slowdown(racer2)
-                        elif racer2.TC_final == True and "shrunk" not in racer2.status:    
-                            if racer2.speed != 0.35 * max_speed_slowdown(racer2) and "stunned" not in racer2.status and racer2.shocked == False:
-                                update_speed(racer2, 1)     
+                        elif racer2.TC_final == True and "shrunk" not in racer2.status:
+                            if racer2.speed != 0.35 * max_speed_slowdown(
+                                    racer2) and "stunned" not in racer2.status and racer2.shocked == False:
+                                update_speed(racer2, 1)
                         else:
                             if racer2.speed != max_speed_slowdown(racer2) and "stunned" not in racer2.status and racer2.shocked == False:
                                 update_speed(racer2, 1) 
@@ -254,6 +258,7 @@ def choose_item(choices, position):
         subtotal += weight[position]
         if subtotal >= r:
             return item
+
 
 # Gets all possible items a racer at a certain position can pull
 def possible_items(position, probability_list):
@@ -387,6 +392,7 @@ def one_sec_stun(original_racer, racer):
         original_racer.using_item = False
         original_racer.recently_used_item = None
 
+
 # Stuns the racer for 3 seconds (used in use_item)
 def three_sec_stun(original_racer, racer):
     if Race_duration <= original_racer.time_item_used + 3:
@@ -416,15 +422,17 @@ def three_sec_stun(original_racer, racer):
         original_racer.using_item = False
         original_racer.recently_used_item = None
 
+
 def banana_slowdown(racer):
     speed = racer.speed
-    if ("POW'd" not in racer.status) and ("stunned" not in 
-                            racer.status) and ("1s_stun" not in racer.status) and "3s_stun" not in racer.status:
+    if ("POW'd" not in racer.status) and ("stunned" not in
+                                          racer.status) and (
+            "1s_stun" not in racer.status) and "3s_stun" not in racer.status:
         if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.status.remove("sped up")
         if "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.speed = 0.5 * speed
-                
+
 
 # The racer using the item and the list of participants are the input arguments
 '''
@@ -435,6 +443,8 @@ and thus will also override green or red shell stun.
 The "1s_stun" status is the status used when a racer gets stunned by one of the items that only stuns for 1 second.
 The "3s_stun" status is the status used when a racer gets stunned by one of the items that stuns for 3 seconds.
 '''
+
+
 def use_item(racer, participants):
     global Unavailable_items, Blooper_use_time, POW_use_time, Lightning_use_time
     # THE LIGHTNING CLOUD IS USED IMMEDIATELY UPON OBTAINING IT, BE AWARE OF THIS IN main()
@@ -470,7 +480,8 @@ def use_item(racer, participants):
                     else:
                         racer.TC_final = True
                         racer.shocked = False
-                        if racer.speed != max_speed_slowdown(racer) and "stunned" not in racer.status and racer.shocked == False:
+                        if racer.speed != max_speed_slowdown(
+                                racer) and "stunned" not in racer.status and racer.shocked == False:
                             update_speed(racer, 1)
                 else:
                     if Race_duration < racer.time_item_used + 5: 
@@ -484,7 +495,7 @@ def use_item(racer, participants):
                         racer.shocked = True
                         racer.using_item = False
                         if "lightning_cloud" in Unavailable_items:
-                            Unavailable_items.remove("lightning_cloud")                
+                            Unavailable_items.remove("lightning_cloud")
                     else:
                         racer.TC_final = True
                         racer.shocked = False
@@ -570,17 +581,17 @@ def use_item(racer, participants):
             for other_racer in participants:
                 if "inked" in other_racer.status:
                     if other_racer.TC_initial == True and "shrunk" not in other_racer.status and "squished" not in other_racer.status:
-                        if (other_racer.speed != 0.9 * 1.1 * other_racer.max_speed 
-                               and "stunned" not in other_racer.status and other_racer.shocked == False):
+                        if (other_racer.speed != 0.9 * 1.1 * other_racer.max_speed
+                                and "stunned" not in other_racer.status and other_racer.shocked == False):
                             other_racer.speed = 0.9 * 1.1 * other_racer.max_speed
                     elif other_racer.TC_final == True and "shrunk" not in other_racer.status and "squished" not in other_racer.status:
-                        if (other_racer.speed != 0.35 * 0.9 * other_racer.max_speed 
-                               and "stunned" not in other_racer.status and other_racer.shocked == False):
+                        if (other_racer.speed != 0.35 * 0.9 * other_racer.max_speed
+                                and "stunned" not in other_racer.status and other_racer.shocked == False):
                             update_speed(other_racer, 1)
 
                     else:
                         if (other_racer.speed != max_speed_slowdown(other_racer)
-                               and "stunned" not in other_racer.status and other_racer.shocked == False):
+                                and "stunned" not in other_racer.status and other_racer.shocked == False):
                             update_speed(other_racer, 1)
         else:  
             for other_racer in participants:
@@ -659,7 +670,7 @@ def use_item(racer, participants):
             racer.recently_used_item = None
 
     if racer.recently_used_item == "trip_mushroom":
-        if Race_duration <= racer.time_item_used + 2 and "sped up" not in racer.status:
+        if Race_duration <= racer.time_item_used + 6 and "sped up" not in racer.status:
             racer.status.append("sped up")
             if "inked" in racer.status:
                 racer.status.remove("inked")
@@ -681,7 +692,7 @@ def use_item(racer, participants):
             racer.recently_used_item = None
 
     if racer.recently_used_item == "gold_mushroom":
-        if Race_duration <= racer.time_item_used + 2 and "sped up" not in racer.status:
+        if Race_duration <= racer.time_item_used + 9 and "sped up" not in racer.status:
             racer.status.append("sped up")
             if "inked" in racer.status:
                 racer.status.remove("inked")
@@ -829,7 +840,7 @@ def use_item(racer, participants):
         if racer.position == 1:
             if 0 <= action <= 0.4:
                 for other_racer in participants:
-                    
+
                     if (other_racer.position == racer.position + 1):
                         one_sec_stun(racer, other_racer)
 
@@ -1075,7 +1086,7 @@ def use_item(racer, participants):
             elif 0.4 < action <= 0.7:
                 back_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or 
+                    if (other_racer.position == racer.position + 1 or
                             other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
                         back_three.append(other_racer)
                 kart = random.choice(back_three)
@@ -1090,7 +1101,7 @@ def use_item(racer, participants):
             elif 0.4 < action <= 0.7:
                 front_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or 
+                    if (other_racer.position == racer.position - 1 or
                             other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
                         front_three.append(other_racer)
                 kart = random.choice(front_three)
@@ -1111,7 +1122,7 @@ def use_item(racer, participants):
                 within_three = []
                 for other_racer in participants:
                     if (other_racer.position == racer.position + 1 or other_racer.position == racer.position + 2 or
-                            other_racer.position == racer.position + 3 or other_racer.position == racer.position - 1 or 
+                            other_racer.position == racer.position + 3 or other_racer.position == racer.position - 1 or
                             other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
                         within_three.append(other_racer)
                 kart = random.choice(within_three)
@@ -1139,7 +1150,7 @@ def use_item(racer, participants):
             elif 0.8 < action <= 0.9:
                 back_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or 
+                    if (other_racer.position == racer.position + 1 or
                             other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
                         back_three.append(other_racer)
                 for kart in back_three:
@@ -1162,7 +1173,7 @@ def use_item(racer, participants):
             elif 0.8 < action <= 0.9:
                 front_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or 
+                    if (other_racer.position == racer.position - 1 or
                             other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
                         front_three.append(other_racer)
                 for kart in front_three:
@@ -1185,7 +1196,7 @@ def use_item(racer, participants):
             elif 0.35 < action <= 0.45:
                 front_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position - 1 or 
+                    if (other_racer.position == racer.position - 1 or
                             other_racer.position == racer.position - 2 or other_racer.position == racer.position - 3):
                         front_three.append(other_racer)
                 for kart in front_three:
@@ -1207,11 +1218,12 @@ def use_item(racer, participants):
             elif 0.8 < action <= 0.9:
                 back_three = []
                 for other_racer in participants:
-                    if (other_racer.position == racer.position + 1 or 
+                    if (other_racer.position == racer.position + 1 or
                             other_racer.position == racer.position + 2 or other_racer.position == racer.position + 3):
                         back_three.append(other_racer)
                 for kart in back_three:
                     three_sec_stun(racer, kart)
+
 
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
@@ -1487,6 +1499,7 @@ all_items_2 = [("lightning_cloud", {1: 0, 2: 0.075}),
                ("banana", {1: 0.375, 2: 0.025}),
                ("trip_bananas", {1: 0.1, 2: 0.025})]
 
+
 def update_race_state(participants, num_racers):
     global Unavailable_items
     race_data_distance = {"Time Elapsed": [Race_duration]}
@@ -1502,13 +1515,13 @@ def update_race_state(participants, num_racers):
     # Accounts for timing rules for items
     if Race_duration == Lightning_use_time + 30:
         Unavailable_items.remove("lightning_bolt")
-    
+
     if Race_duration == POW_use_time + 20:
         Unavailable_items.remove("POW")
-    
+
     if Race_duration == Blooper_use_time + 15:
         Unavailable_items.remove("blooper")
-    
+
     if Race_duration == 30:
         Unavailable_items.remove("blue_shell")
 
@@ -1531,9 +1544,10 @@ def update_race_state(participants, num_racers):
         if (200 <= racer.distance_from_start <= 300) and (racer.item == None):
             get_item(racer, num_racers)
             racer.time_item_got = Race_duration
-            racer.time_delay = random.randint(3,5)
+            racer.time_delay = random.randint(3, 5)
             if racer.item in All_possible_unavailable_items:
                 Unavailable_items.append(racer.item)
+
         # Continue this based on how many item boxes there are and where we place them
         if Race_duration == racer.time_item_got + racer.time_delay and racer.item != None and racer.using_item == False:
             racer.recently_used_item = racer.item
@@ -1555,8 +1569,13 @@ def update_race_state(participants, num_racers):
     df_distance = pd.DataFrame(race_data_distance)
     df_speed = pd.DataFrame(race_data_speed)
     df_position = pd.DataFrame(race_data_position)
+
+    # Update positions based on distance
+    df_position.iloc[:, 1:] = df_distance.iloc[:, 1:].rank(axis=1, ascending=False, method='min')
+
     return df_position, df_speed, df_distance, race_data
-        
+
+
 def run_race_simulation(participants, num_racers):
     global df_position, df_speed, df_distance, Race_duration
     finish_line = 1500
@@ -1566,14 +1585,12 @@ def run_race_simulation(participants, num_racers):
     
     while not all(kart.finished for kart in participants):
         Race_duration += 1
-        
-        
+
         race_data_position, race_data_speed, race_data_distance, race_data = update_race_state(participants, num_racers)
         df_distance = pd.concat([df_distance, race_data_distance], ignore_index=True)
         df_speed = pd.concat([df_speed, race_data_speed], ignore_index=True)
         df_position = pd.concat([df_position, race_data_position], ignore_index=True)
-        print(tabulate(race_data, headers="keys", tablefmt='psql'))
-
+        print(tabulate(race_data, headers='keys', tablefmt='psql'))
        
         time.sleep(1)
         
@@ -1582,7 +1599,7 @@ def run_race_simulation(participants, num_racers):
                 racer.finished = True
     
     return df_distance, df_position, df_speed
-            
+
 
 # Where all the other functions will get called and where we will create the animation
 def main():
@@ -1610,28 +1627,74 @@ def main():
         participants[j].position = initial_positions[j]
         participants[j].distance_from_start = -1 * initial_positions[j]
 
-    
     df_distance, df_position, df_speed = run_race_simulation(participants, num_racers)
 
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
     fig3, ax3 = plt.subplots()
+
     def update_position_movie(frame):
         ax.clear()
-        ax.bar(df_position.columns[1:], df_position.iloc[frame, 1:])
-        ax.set_ylim(0, df_position.iloc[:, 1:].max().max())
-        ax.set_title(f'use_time: {df_position.iloc[frame, 0]} seconds - Position')
+        ax.axis('off')  # Turn off the axis for a cleaner table view
+
+        # Retrieve the current table if it exists
+        existing_table = ax.tables
+        if existing_table:
+            existing_table[0].remove()
+
+        table_data = df_position.iloc[frame].reset_index()  # Resetting index for better display
+
+        # Check if there is more than one column before sorting
+        if len(table_data.columns) > 1:
+            # Get the last row (latest positions)
+            last_row = table_data.iloc[-1, 1:]
+
+            # Sort the racers based on their positions in ascending order
+            sorted_positions = last_row.argsort() + 1
+            sorted_columns = list(map(str, sorted_positions.index))
+
+            # Create a new DataFrame with Time as the first column and sorted positions as columns
+            table_data = pd.DataFrame({'Time': [table_data.iloc[frame, 0]]})
+            for col in sorted_columns:
+                table_data[col] = [table_data.at[frame, col]]
+
+            # Drop the index column
+            table_data = table_data.drop(columns=['index'])
+
+            # Ensure all columns are strings
+            table_data.columns = table_data.columns.astype(str)
+
+            table = ax.table(cellText=table_data.values[:, 1:], colLabels=table_data.columns[1:],
+                             rowLabels=[str(i) for i in range(1, len(table_data.columns))],
+                             cellLoc='center', loc='center', colColours=['#f0f0f0'] * len(table_data.columns))
+            table.auto_set_font_size(False)
+            table.set_fontsize(8)
+            table.scale(1, 1.5)  # Adjust the scaling based on your preference
+
+            # Highlight the maximum value in each row with a different color
+            for i, row in enumerate(table_data.values):
+                max_value_index = row[1:].argmax() + 1
+                table[(i + 1, max_value_index - 1)].set_facecolor('#ffcccb')
+        ax.set_title(f'Position Table')
+
     animation_position = FuncAnimation(fig, update_position_movie, frames=len(df_position), repeat=False)
+    animation_position.save('position_animation.gif', writer='pillow', fps=1)
 
     def update_speed_movie(frame):
         ax2.clear()
-        ax2.bar(df_speed.columns[1:], df_speed.iloc[frame, 1:])
+        bars = ax2.bar(df_speed.columns[1:], df_speed.iloc[frame, 1:])
         ax2.set_ylim(0, df_speed.iloc[:, 1:].max().max())
-        ax2.set_title(f'use_time: {df_speed.iloc[frame, 0]} seconds - Speed')
-    
-    animation_speed = FuncAnimation(fig2, update_speed_movie, frames=len(df_speed), repeat=False)
+        ax2.set_title(f'Time: {df_speed.iloc[frame, 0]} seconds - Speed')
 
-    
+        # Add racer names above the bars
+        for bar, racer_speed in zip(bars.patches, df_speed.iloc[frame, 1:]):
+            height = bar.get_height()
+            ax2.text(bar.get_x() + bar.get_width() / 2, height + 0.01, f'{racer_speed:.2f}',
+                     ha='center', va='bottom', fontsize=8)
+
+    animation_speed = FuncAnimation(fig2, update_speed_movie, frames=len(df_speed), repeat=False)
+    animation_speed.save('speed_animation.gif', writer='pillow', fps=1)  # Adjust fps as needed
+
     def update_distance_movie(frame):
         ax3.clear()
         ax3.bar(df_distance.columns[1:], df_distance.iloc[frame, 1:])
@@ -1639,11 +1702,14 @@ def main():
         ax3.set_title(f'use_time: {df_distance.iloc[frame, 0]} seconds - Distance')
 
     animation_distance = FuncAnimation(fig3, update_distance_movie, frames=len(df_distance), repeat=False)
+    animation_distance.save('distance_animation.gif', writer='pillow', fps=1)  # Adjust fps as needed
 
-    
     plt.show()
+    print(df_distance)
+    print(df_speed)
+    print(df_position)
 
-    if len(df_distance) < 2000:
+    if len(df_distance) < 1500:
         for racer in participants:
             if racer.finished:
                 print(f"{racer.name} has crossed the finish line in Position {racer.position}!")
@@ -1653,14 +1719,14 @@ def main():
 
 
 # Error handling
-#if len(sys.argv) != 1:
-    #print("Invalid number of inputs.")
-    #sys.exit()
-#else:
-    #try:
-        #main()
-    #except:
-        #print("Unexpected error occurred. Must input an integer between 2 and 12, inclusive.")
+# if len(sys.argv) != 1:
+# print("Invalid number of inputs.")
+# sys.exit()
+# else:
+# try:
+# main()
+# except:
+# print("Unexpected error occurred. Must input an integer between 2 and 12, inclusive.")
 
 if __name__ == "__main__":
     main()
