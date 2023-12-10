@@ -87,7 +87,7 @@ class Racer:
 
     def __init__(self, name, weight):
         '''
-        Constructs all of the necessary attributes for the Racer class
+        Constructs all the necessary attributes for the Racer class
 
         Parameters:
         name (str): The name of the racer (Mario, Peach, Funky Kong, etc)
@@ -170,9 +170,19 @@ class Racer:
         self.finished = False
 
 
-# For very specifc scnearios where a racer has at least one of these status and needs to accelerate
+# For very specific scenarios where a racer has at least one of these status and needs to accelerate
 # to their max speed based on which ones they have
 def max_speed_slowdown(racer):
+    """
+    Adjusts the speed of the racer if they have multiple status effects at once. Accounts for the combination of item effects
+
+    Parameter:
+    racer (object): the racer whose speed will decrease based on these effects
+
+    Returns:
+    speed (float) : new racer speed based on the possible cases
+    """
+
     if ("shrunk" in racer.status and "inked" not in racer.status and "squished" not in racer.status) or ("squished" in
                                                                                                          racer.status and "shrunk" not in racer.status and "inked" not in racer.status):
         speed = 0.35 * racer.max_speed
@@ -191,33 +201,72 @@ def max_speed_slowdown(racer):
 
 
 def update_position(racer1, racer2):
+    """
+    Swaps the positions of two racers if racer1 passes racer2
+    Parameter:
+    racer1 (object): the racer who is passing another racer
+    racer2 (object): the racer who racer1 is passing
+
+    Returns:
+    racer2.position, racer1.position (int): returns the new positions of these racers
+    racer1.racers_passed (int): if racer1 is in a bullet bill and passes racer2, the number of racers passed increases by 1 to
+    monitor when to stop the bullet bill
+    """
     racer1.position, racer2.position = racer2.position, racer1.position
     if "bill" in racer1.status:
         racer1.racers_passed += 1
 
 def update_distance(racer, use_time):
-    # Changes the distance the racer has traveled in a certain use_time (in this case I used 1 second, but we can change
-    # it based on how the race looks and the processing power of our computers). This also assumes the racer speeds
-    # are all in m/s
+    """
+    Changes the distance the racer has traveled from the start
+    Parameter:
+    racer (obj): the racer whose distance from the start is changing
+    use_time (int): the time over which the distance from the start is changing
+
+    Returns:
+    racer.distance_from_start: new distance attribute for the racer
+    """
+
+    # Distance traveled is adjusted using the formula final_distance = initial_distance + speed*time
     distance = racer.distance_from_start + (racer.speed * use_time)
     racer.distance_from_start = distance
 
 
 def update_speed(racer, use_time):
-    # Adjusts the speed of the racer based on its acceleration. The method assumes 1 second has passed
+    """
+    Changes the speed of the racer based on the acceleration
+    Parameter:
+    racer (obj): the racer whose speed is changing
+    use_time (int): the time over which the speed is changing
+
+    Returns:
+    racer.speed: new speed attribute for the racer
+    """
+    # Increases the racer speed up to the maximum speed based on the acceleration. Speed is updated first, then the
+    # racer moves and then their distance is updated
     if racer.speed < racer.max_speed:
         speed = racer.speed + racer.acceleration * use_time
         racer.speed = speed
+        # If the new racer speed exceeds the maximum speed, the racer speed is set to the maximum bound
         if racer.speed > racer.max_speed:
             racer.speed = racer.max_speed
 
-    # For decelerating back to initial speed after racer uses a mushroom or something
+    # For decelerating back to initial speed after racer uses a speed-ramping item
     if racer.speed > racer.max_speed:
         speed = racer.speed - racer.acceleration * use_time
         racer.speed = speed
 
 
 def choose_item(choices, position):
+    """
+    Picks the item a racer gets from an item box
+    Parameter:
+    racer (obj): the racer whose speed is changing
+    use_time (int): the time over which the speed is changing
+
+    Returns:
+    racer.speed: new speed attribute for the racer
+    """
     total = sum(weight[position] for _, weight in choices)
     r = random.uniform(0, total)
     subtotal = 0
@@ -1689,7 +1738,8 @@ def update_race_state(participants, num_racers):
 
         distance_traveled = racer.distance_from_start
         remainder = distance_traveled % 250
-        if (distance_traveled >= 250) and (distance_traveled < 2000) and (0 <= remainder <= 50) and (racer.item is None):
+        if (distance_traveled >= 250) and (distance_traveled < 2000) and (0 <= remainder <= 50) and (
+                racer.item is None):
             get_item(racer, num_racers)
             racer.time_item_got = Race_duration
             racer.time_delay = random.randint(3, 5)
@@ -1795,14 +1845,14 @@ def main():
         participants[j].distance_from_start = -1 * initial_positions[j]
 
     df_distance, df_position, df_speed = run_race_simulation(participants, num_racers)
-    print (df_speed)
+    print(df_speed)
 
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
     fig2.set_size_inches(8, 5)  # Adjust the figure size as needed=
     fig3, ax3 = plt.subplots()
     fig3.set_size_inches(8, 5)  # Adjust the figure size as needed=
-   
+
     def update_position_movie(frame):
         ax.clear()
         ax.axis('off')
@@ -1844,6 +1894,7 @@ def main():
         ax2.set_ylim(0, df_speed.iloc[:, 1:].max().max())
         ax2.set_title(f'Speed')
         fig2.autofmt_xdate(rotation=45, ha='right')
+
     animation_speed = FuncAnimation(fig2, update_speed_movie, frames=len(df_speed), repeat=False)
     animation_speed.save('speed_animation.gif', writer='pillow', fps=1)
 
