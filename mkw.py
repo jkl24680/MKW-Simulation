@@ -1293,7 +1293,6 @@ def use_item(racer, participants):
                     if other_racer.marker == 3:
                         three_sec_stun(racer, other_racer)
 
-
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
 peach = Racer("Peach", "Medium")
@@ -1594,7 +1593,6 @@ def update_race_state(participants, num_racers):
     if Race_duration == 30:
         Unavailable_items.remove("blue_shell")
 
-    
     sorted_racers = sorted(participants, key=attrgetter('position'), reverse = True)
     for i in range(len(sorted_racers) - 1):
         if sorted_racers[i].distance_from_start > sorted_racers[i + 1].distance_from_start:
@@ -1606,10 +1604,10 @@ def update_race_state(participants, num_racers):
             racer.is_status = True
         else:
             racer.is_status = False
+
         if (racer.speed != racer.max_speed) and (not racer.status):
             update_speed(racer, 1)
 
-        
         if (200 <= racer.distance_from_start <= 250) and (racer.item == None):
             get_item(racer, num_racers)
             racer.time_item_got = Race_duration
@@ -1647,7 +1645,7 @@ def update_race_state(participants, num_racers):
             
         if racer.recently_used_item != None:
             use_item(racer, participants)
-
+           
         if "stunned" in racer.status and ("1s_stun" in racer.status and "3s_stun" in racer.status):
             racer.status.remove("stunned")
             racer.status.remove("1s_stun")
@@ -1663,7 +1661,6 @@ def update_race_state(participants, num_racers):
             racer.status.remove("1s_stun")
             racer.status.remove("invulnerable")
 
-        
         race_data_distance[racer.name] = [racer.distance_from_start]
         race_data_speed[racer.name] = [racer.speed]
         race_data_position[racer.name] = [racer.position]
@@ -1674,6 +1671,7 @@ def update_race_state(participants, num_racers):
         race_data.loc[index, 'Item'] = racer.item
         race_data.loc[index, 'idk'] = racer.is_status
         race_data.loc[index, 'Distance'] = racer.distance_from_start
+
     df_distance = pd.DataFrame(race_data_distance)
     df_speed = pd.DataFrame(race_data_speed)
     df_position = pd.DataFrame(race_data_position)
@@ -1685,12 +1683,11 @@ def update_race_state(participants, num_racers):
 
 
 def run_race_simulation(participants, num_racers):
-    global df_position, df_speed, df_distance, Race_duration
+    global df_position, df_speed, df_distance, Race_duration, finish_line
     finish_line = 1500
     df_distance = pd.DataFrame({"Race duration": [Race_duration]})
     df_speed = pd.DataFrame({"Race Duration": [Race_duration]})
     df_position = pd.DataFrame({"Race Duration": [Race_duration]})
-    
     while not all(kart.finished for kart in participants):
         Race_duration += 1
 
@@ -1706,7 +1703,6 @@ def run_race_simulation(participants, num_racers):
         for racer in participants:
             if racer.distance_from_start >= finish_line and racer.finished == False:
                 racer.finished = True
-    
     return df_distance, df_position, df_speed
 
 
@@ -1720,11 +1716,10 @@ def main():
         sys.exit()
     num_racers = int(n)
 
-    # a list of items that racers are currently unable to obtain due to item/timing limits
-    # When a race starts, these 4 items will be unavailable until a certain period of use_time has passed (check item probability site)
-    # WILL NEED TO BE UPDATED THROUGHOUT THE RACE
-    # For simplicity, there will be 6 items that can become unavailable: the 4 already on the list and the bullet bill and lightning cloud
-    
+    # a list of items that racers are currently unable to obtain due to item/timing limits When a race starts,
+    # these 4 items will be unavailable until a certain period of time has passed (check item probability site) WILL
+    # NEED TO BE UPDATED THROUGHOUT THE RACE For simplicity, there will be 6 items that can become unavailable: the 4
+    # already on the list and the bullet bill and lightning cloud
 
     # Select int(n) racers at random from the list of all racers
     participants = random.sample(all_racers, num_racers)
@@ -1744,81 +1739,73 @@ def main():
 
     def update_position_movie(frame):
         ax.clear()
-        ax.axis('off')  # Turn off the axis for a cleaner table view
+        ax.axis('off')
 
-        # Retrieve the current table if it exists
-        existing_table = ax.tables
-        if existing_table:
-            existing_table[0].remove()
+        # Get the data for the current frame
+        data = df_position.iloc[frame].sort_values(ascending=True, na_position='last')
 
-        table_data = df_position.iloc[frame].reset_index()  # Resetting index for better display
+        # Update the positions of racers based on the current frame
+        for i, (index, value) in enumerate(data.items(), start=1):
+            for racer in participants:
+                if racer.name == index:
+                    racer.position = i
 
-        # Check if there is more than one column before sorting
-        if len(table_data.columns) > 1:
-            # Get the last row (latest positions)
-            last_row = table_data.iloc[-1, 1:]
+        # Sort the racers based on their positions
+        sorted_racers = sorted(participants, key=lambda x: x.position)
 
-            # Sort the racers based on their positions in ascending order
-            sorted_positions = last_row.argsort() + 1
-            sorted_columns = list(map(str, sorted_positions.index))
+        # Update the positions again to ensure they start from 1
+        for i, racer in enumerate(sorted_racers, start=1):
+            racer.position = i
 
-            # Create a new DataFrame with Time as the first column and sorted positions as columns
-            table_data = pd.DataFrame({'Time': [table_data.iloc[frame, 0]]})
-            for col in sorted_columns:
-                table_data[col] = [table_data.at[frame, col]]
+        # Create a list of strings for each racer's position and name
+        racer_info = [f"{racer.position}. {racer.name}" for racer in sorted_racers]
 
-            # Drop the index column
-            table_data = table_data.drop(columns=['index'])
+        # Display the racer information using ax.text
+        for i, info in enumerate(racer_info):
+            ax.text(0.5, 0.9 - i * 0.1, info, ha='center', va='center', fontsize=8)
 
-            # Ensure all columns are strings
-            table_data.columns = table_data.columns.astype(str)
+        ax.set_title(f'Position Table - Frame {frame + 1}')
 
-            table = ax.table(cellText=table_data.values[:, 1:], colLabels=table_data.columns[1:],
-                             rowLabels=[str(i) for i in range(1, len(table_data.columns))],
-                             cellLoc='center', loc='center', colColours=['#f0f0f0'] * len(table_data.columns))
-            table.auto_set_font_size(False)
-            table.set_fontsize(8)
-            table.scale(1, 1.5)  # Adjust the scaling based on your preference
+    # Adjust the number of frames based on your data
+    frames = len(df_position)
 
-            # Highlight the maximum value in each row with a different color
-            for i, row in enumerate(table_data.values):
-                max_value_index = row[1:].argmax() + 1
-                table[(i + 1, max_value_index - 1)].set_facecolor('#ffcccb')
-        ax.set_title(f'Position Table')
-
-    animation_position = FuncAnimation(fig, update_position_movie, frames=len(df_position), repeat=False)
+    animation_position = FuncAnimation(fig, update_position_movie, frames=frames, repeat=False)
     animation_position.save('position_animation.gif', writer='pillow', fps=1)
 
     def update_speed_movie(frame):
         ax2.clear()
         bars = ax2.bar(df_speed.columns[1:], df_speed.iloc[frame, 1:])
         ax2.set_ylim(0, df_speed.iloc[:, 1:].max().max())
-        ax2.set_title(f'Time: {df_speed.iloc[frame, 0]} seconds - Speed')
+        ax2.set_title(f'Speed')
 
-        # Add racer names above the bars
-        for bar, racer_speed in zip(bars.patches, df_speed.iloc[frame, 1:]):
-            height = bar.get_height()
-            ax2.text(bar.get_x() + bar.get_width() / 2, height + 0.01, f'{racer_speed:.2f}',
-                     ha='center', va='bottom', fontsize=8)
+        for bar, racer_speed, racer_name in zip(bars.patches, df_speed.iloc[frame, 1:], df_speed.columns[1:]):
+            racer_item = None
+            for racer in participants:
+                if racer.name == racer_name:
+                    racer_item = racer.item
+                    #print(f'Racer: {racer.name}, Item: {racer_item}')
+                    break
+
+            if racer_item is not None:
+                height = bar.get_height()
+                ax2.text(bar.get_x() + bar.get_width() / 2, height + 0.01, f'{racer_item}',
+                         ha='center', va='bottom', fontsize=8)
 
     animation_speed = FuncAnimation(fig2, update_speed_movie, frames=len(df_speed), repeat=False)
-    animation_speed.save('speed_animation.gif', writer='pillow', fps=1)  # Adjust fps as needed
+    animation_speed.save('speed_animation.gif', writer='pillow', fps=1)
 
     def update_distance_movie(frame):
         ax3.clear()
         ax3.bar(df_distance.columns[1:], df_distance.iloc[frame, 1:])
         ax3.set_ylim(0, df_distance.iloc[:, 1:].max().max())
-        ax3.set_title(f'use_time: {df_distance.iloc[frame, 0]} seconds - Distance')
+        ax3.set_title(f'Time: {df_distance.iloc[frame, 0]} seconds - Distance')
 
     animation_distance = FuncAnimation(fig3, update_distance_movie, frames=len(df_distance), repeat=False)
     animation_distance.save('distance_animation.gif', writer='pillow', fps=1)  # Adjust fps as needed
 
     plt.show()
-    print(df_distance)
-    print(df_speed)
-    print(df_position)
-
-    if len(df_distance) < 1500:
+    
+    if len(df_distance) < finish_line:
         for racer in participants:
             if racer.finished:
                 print(f"{racer.name} has crossed the finish line in Position {racer.position}!")
