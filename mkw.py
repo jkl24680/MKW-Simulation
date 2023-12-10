@@ -1591,7 +1591,6 @@ def update_race_state(participants, num_racers):
                               'Position': [character.position for character in participants],
                               'Speed': [character.speed for character in participants],
                               'Item': [character.item for character in participants],
-                              'idk': [character.is_status for character in participants],
                               'Distance': [character.distance_from_start for character in participants]}).set_index(
         "Racer #")
     # Accounts for timing rules for items
@@ -1624,7 +1623,7 @@ def update_race_state(participants, num_racers):
 
         distance_traveled = racer.distance_from_start
         remainder = distance_traveled % 250
-        if (distance_traveled >= 250) and (distance_traveled < 2000) and (0 <= remainder <= 50) and (racer.item is not None):
+        if (distance_traveled >= 250) and (distance_traveled < 2000) and (0 <= remainder <= 50) and (racer.item is None):
             get_item(racer, num_racers)
             racer.time_item_got = Race_duration
             racer.time_delay = random.randint(3, 5)
@@ -1669,7 +1668,6 @@ def update_race_state(participants, num_racers):
         race_data.loc[index, 'Position'] = racer.position
         race_data.loc[index, 'Speed'] = racer.speed
         race_data.loc[index, 'Item'] = racer.item
-        race_data.loc[index, 'idk'] = racer.is_status
         race_data.loc[index, 'Distance'] = racer.distance_from_start
 
     df_distance = pd.DataFrame(race_data_distance)
@@ -1697,7 +1695,6 @@ def run_race_simulation(participants, num_racers):
         df_position = pd.concat([df_position, race_data_position], ignore_index=True)
         print(tabulate(race_data, headers='keys', tablefmt='psql'))
 
-        print(Unavailable_items)
         time.sleep(1)
 
         for racer in participants:
