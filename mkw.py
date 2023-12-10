@@ -1,45 +1,120 @@
+'''
+This is the code for our Mario Kart Wii simulation.
+
+When the program is ran, the user will be prompted to enter an integer from 2-12, representing the number of racers
+in the race.
+
+Then, that number of participants is randomly chosen from the list of all of the characters in the game. 
+The function update_race_state() calls on the functions for simulating racer movement, updating their positions whenever
+they pass another racer, and getting and using their items, all at appropriate times.
+
+The function run_race_simulation() calls on update_race_state repeatedly until all of the racers have cross the finish line, 
+which is set to be a predetermined distance.
+
+The race state at every frame is printed in the terminal in the form of a table, and at the end of the race,
+animtations of the racers' positions, speeds, and distances from the start throughout the race are created and shown to the user.
+
+Note that this simulation is not perfect, as it contains bugs that sometimes occur, and many simplifications were made
+regarding the race track and item functionality.
+'''
+
 import random
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
 from matplotlib.animation import FuncAnimation
 from tabulate import tabulate
-import time
 from operator import attrgetter
 
+# The number of seconds that have elapsed since the start of the race
 Race_duration = 0
+
+# Variables storing the times that the lightning bolt, the POW block, and the blooper were used
+# These are for the item timing rules
 Lightning_use_time = 0
 Blooper_use_time = 0
 POW_use_time = 0
+
+# The list of all items that can be unavailable because of item limit and/or item timing rules
 All_possible_unavailable_items = ["lightning_cloud", "lightning_bolt", "POW", "bullet_bill", "blue_shell", "blooper"]
+
+# The current list of items that are unavailable
+# The race starts with these 4 items in the list. They will be removed after a certain number of seconds have passed.
 Unavailable_items = ["lightning_bolt", "POW", "blue_shell", "blooper"]
 
-
-# Racer class
 class Racer:
-    def __init__(self, name, weight):
-        # The name of the racer (Mario, Peach, Funky Kong, etc)
-        self.name = name
+    '''
+    A class representing a racer.
 
-        # The weight of the racer, which will be Light, Medium, or Heavy
+    Attributes:
+    name (str): The name of the racer
+    weight (str): The weight of the racer (either Light, Medium, or Heavy)
+    position (int): The current position of the racer in the race
+    item (str): The racer's current item in the race
+    recently_used_item (str): The item that the racer just used.
+                              This attribute is solely to help with the item functionality.
+    distance_from_start(float): The racer's current distance from the starting line
+    speed (float): The racer's current speed (in meters per second)
+    max_speed (float): The speed that the racer should be going at when not affected by any items
+                       The heavier the character, the greater their max_speed
+    acceleration (float): How fast the racer can get back to their max_speed after being affected by an item
+                          The lighter the character, the greater their acceleration
+    status (list of strings): Any status effects that the racer currently has when affected by an item
+    racers_passed (int): Stores the number of racers that a user has passed
+                         This atttribute is solely used for the bullet bill item functionality.
+    time_item_got (int): Keeps track of when exactly the racer got an item
+    time_item_used (int): Keeps track of when exactly the racer used an item
+                          This attribute is solely used for item functionality and item timing rules
+    time_delay (int): The number of seconds that must elapse before a racer can use their item
+                      Paired with time_item_got to simulate the time that elapses in the original game 
+                      between when you touch an item box and when the item is actually in your inventory and available for use.
+    using_item (bool): Keeps track of whether status effects should be applied to the racer or other racers
+                       This attribute acts as a flag and is solely used for item functionality and item timing rules
+    action (float): A random floating point value between 0 and 1 that determines who the racer will stun if using certain items
+                    Initially set to 0 but will be updated accordingly
+    shocked (bool): Keeps track of whether the racer is just zapped by the lightning bolt or lightning cloud
+    marker (int): Keeps track of the other racer(s) that the racer just stunned
+    user_marker (int): Keeps track of the racer that is doing the stunning
+                       This attribute and marker are solely used for the functionality of certain items
+    TC_initial (bool): Keeps track of whether the racer is in the initial phase of the lightning cloud item
+    TC_final (bool): Keeps track of whether the racer is in the final phase of the lightning cloud item
+    finished (bool): Keeps track of whether the racer has crossed the finish line
+
+    Methods:
+    None
+    '''
+
+    def __init__(self, name, weight):
+        '''
+        Constructs all of the necessary attributes for the Racer class
+
+        Parameters:
+        name (str): The name of the racer (Mario, Peach, Funky Kong, etc)
+        weight (str): The weight of the racer (Light, Medium, or Heavy)
+
+        Returns:
+        None
+        '''
+
+        self.name = name
         self.weight = weight
 
-        # Position of the racer (int). We will assign each racer a random position to start in, but for now,
-        # we set it to 0.
+        # Initially set the position to 0
+        # When the race starts, the racer will be assigned a random position between 1 and the number of participants
         self.position = 0
 
         # Initially, each racer will have no items
         self.item = None
-
         self.recently_used_item = None
-        # Initially, all racers will be behind the start line, so their distance from the start line will be negative.
-        # But for now, we set it to 0.
+
+        # Initially set the distance to 0
+        # When the race starts, each racer will start behind the finish line
+        # Their initial distance will be a negative int and will correspond with their initial positions
         self.distance_from_start = 0
 
-        # Assigns speed values based on weight. random.uniform(1.0, 1.5) generates a random number between 1.0 and 1.5,
-        # and the 23, 25, and 27 are all placeholder numbers that will be changed once we figure out the length of
-        # the racetrack. The heavier the character, the faster their speed will be
-        # Before the race starts, everyone has a speed pf 0.
+        # Assigns random max_speed values based on weight
+        # Initially, all racers will start with a speed of 0
         if weight == "Light":
             s = 23 * random.uniform(1.0, 1.5)
             self.speed = 0
@@ -54,9 +129,6 @@ class Racer:
             self.max_speed = s
 
         # Assigns acceleration based on weight
-        # The heavier the character, the lower the acceleration
-        # We will update these values once we create the race track and get the speed stuff figured out
-        # We might randomize the accelerations a little just for fun, but that will be for later
         if weight == "Light":
             self.acceleration = self.max_speed / 3
         if weight == "Medium":
@@ -64,40 +136,37 @@ class Racer:
         if weight == "Heavy":
             self.acceleration = self.max_speed / 5
 
-        # Assigns a list of status effects that helps in the use_item() method. All racers will begin with no status effects
+        # All racers begin with no status effects.
         self.status = []
 
-        self.is_status = False
-        # Racers_passed is used to stop the bullet bill after passing 5 karts. All racers will begin with 0 racers
-        # passed
+        # This value only gets updated whenever the racer is using a bullet bill
         self.racers_passed = 0
 
-        # Stores when a racer gets an item from an item box
+        # These are initially set to 0 and will be changed when the racer gets and uses an item
         self.time_item_got = 0
-
         self.time_item_used = 0
 
-        # The use_time that must pass before a racer uses an item after getting one
-        # is an integer from 3-5
+        # Initially set to 0 but will be set to a random int between 3 and 5 inclusive when the racer gets an item
         self.time_delay = 0
 
+        # Initially set to False because the racer is not using an item when the race starts
         self.using_item = False
+
+        # Will be updated when the racer is using certain items
         self.action = None
 
-        # To account for a very specific scenario in this a racer gets zapped by lightning bolt or lightning cloud
-        # when they're already shrunk or squished. Since self.status is a list, we can't simply append "stunned" to
-        # the list since everything is in a while loop and multiple "stunned" will be appended, which we don't want.
+        # Initially set to false, as the racer is not zapped by a lightning bolt or lightning cloud at the start of the race
         self.shocked = False
 
+        # Initially set to 0 but will be updated based on what specific item the racer is using
         self.marker = 0
         self.user_marker = 0
 
-        # Stores whether a racer with a lightning cloud is currently in the initial phase where they speed up
-        # or in the final phase where they are shocked and slowed down
-        # Mainly used to account for very specific scenarios that have potential to break the code
+        # Initially set to False, as the racer is not using a lightning cloud at the beginning of the race
         self.TC_initial = False
         self.TC_final = False
 
+        # WIll be set to True once the racer crosses the finish line
         self.finished = False
 
 
@@ -123,7 +192,8 @@ def max_speed_slowdown(racer):
 
 def update_position(racer1, racer2):
     racer1.position, racer2.position = racer2.position, racer1.position
-
+    if "bill" in racer1.status:
+        racer1.racers_passed += 1
 
 def update_distance(racer, use_time):
     # Changes the distance the racer has traveled in a certain use_time (in this case I used 1 second, but we can change
@@ -1613,10 +1683,6 @@ def update_race_state(participants, num_racers):
 
     for racer in participants:
         update_distance(racer, 1)
-        if racer.status:
-            racer.is_status = True
-        else:
-            racer.is_status = False
 
         if (racer.speed != racer.max_speed) and (not racer.status):
             update_speed(racer, 1)
