@@ -1682,7 +1682,7 @@ def update_race_state(participants, num_racers):
 
 def run_race_simulation(participants, num_racers):
     global df_position, df_speed, df_distance, Race_duration, finish_line, race_data
-    finish_line = 1500
+    finish_line = 1000
     df_distance = pd.DataFrame({"Race duration": [Race_duration]})
     df_speed = pd.DataFrame({"Race Duration": [Race_duration]})
     df_position = pd.DataFrame({"Race Duration": [Race_duration]})
@@ -1733,8 +1733,10 @@ def main():
 
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
+    fig2.set_size_inches(8, 5)  # Adjust the figure size as needed=
     fig3, ax3 = plt.subplots()
-
+    fig3.set_size_inches(8, 5)  # Adjust the figure size as needed=
+   
     def update_position_movie(frame):
         ax.clear()
         ax.axis('off')
@@ -1775,7 +1777,7 @@ def main():
         bars = ax2.bar(df_speed.columns[1:], df_speed.iloc[frame, 1:])
         ax2.set_ylim(0, df_speed.iloc[:, 1:].max().max())
         ax2.set_title(f'Speed')
-
+        fig2.autofmt_xdate(rotation=45, ha='right')
     animation_speed = FuncAnimation(fig2, update_speed_movie, frames=len(df_speed), repeat=False)
     animation_speed.save('speed_animation.gif', writer='pillow', fps=1)
 
@@ -1783,7 +1785,8 @@ def main():
         ax3.clear()
         ax3.bar(df_distance.columns[1:], df_distance.iloc[frame, 1:])
         ax3.set_ylim(0, df_distance.iloc[:, 1:].max().max())
-        ax3.set_title(f'Time: {df_distance.iloc[frame, 0]} seconds - Distance')
+        ax3.set_title(f'Distance')
+        fig3.autofmt_xdate(rotation=45, ha='right')
 
     animation_distance = FuncAnimation(fig3, update_distance_movie, frames=len(df_distance), repeat=False)
     animation_distance.save('distance_animation.gif', writer='pillow', fps=1)  # Adjust fps as needed
