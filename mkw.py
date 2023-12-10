@@ -41,17 +41,17 @@ class Racer:
         # the racetrack. The heavier the character, the faster their speed will be
         # Before the race starts, everyone has a speed pf 0.
         if weight == "Light":
-            # s = 23 * random.uniform(1.0, 1.5)
+            s = 23 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.max_speed = 23
+            self.max_speed = s
         if weight == "Medium":
-            # s = 25 * random.uniform(1.0, 1.5)
+            s = 25 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.max_speed = 25
+            self.max_speed = s
         if weight == "Heavy":
-            # s = 27 * random.uniform(1.0, 1.5)
+            s = 27 * random.uniform(1.0, 1.5)
             self.speed = 0
-            self.max_speed = 27
+            self.max_speed = s
 
         # Assigns acceleration based on weight
         # The heavier the character, the lower the acceleration
@@ -84,9 +84,9 @@ class Racer:
         self.using_item = False
         self.action = None
 
-        # To account for a very specific scenario in this a racer gets zapped by lightning bolt or lightning cloud when they're
-        # already shrunk or squished. Since self.status is a list, we can't simply append "stunned" to the list since everything is in a while
-        # loop and multiple "stunned" will be appended, which we don't want.
+        # To account for a very specific scenario in this a racer gets zapped by lightning bolt or lightning cloud
+        # when they're already shrunk or squished. Since self.status is a list, we can't simply append "stunned" to
+        # the list since everything is in a while loop and multiple "stunned" will be appended, which we don't want.
         self.shocked = False
 
         self.marker = 0
