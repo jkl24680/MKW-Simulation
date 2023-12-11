@@ -277,38 +277,87 @@ def choose_item(choices, position):
             return item
 
 
-# Gets all possible items a racer at a certain position can pull
 def possible_items(position, probability_list):
+    """
+    Gets all possible items that a racer at a certain position can pull
+
+    Parameters:
+    position (int): the position of the racer
+    probability_list (list of tuples): The item probability list corresponding to the number of racers in the race
+
+    Returns:
+    list of items: All of the item that a the race can pull given their position and how many racers are in the race
+    """
+
+    # Loops through the probability list to get all of the items that have a probability value greater than 0
     return [item[0] for item in probability_list if item[1][position] != 0]
 
 
-# Updates the item probabilities based on what is currently unavailable
-# This is so we can take into account the item limits and timing limits
 def update_probabilities(items, probability_list, position):
+    """
+    Updates the probability list based on what items are currently unavailable due to item limit and item timing rules
+
+    Parameters:
+    items (list of strings): The list of items that are currently unavailable
+    probability_list (list of tuples): The item probability list corresponding to the number of racers in the race
+    position (int): The current position of the racer
+
+    Returns probability_list (list of tuples): The updated probability list after taking into account the current unavailable items
+    """
+
+    # The list of items that are currently available
     other_items = []
+
+    # The sum of the probabilities of all of the unavailable items
     sum_prob_items = 0
+
+    # Loops through the default probability list
     for possible_item in probability_list:
+        # Checks if any item is in the list of unavailable items
+        # If they are, then add their probability to sum_prob_items
         if possible_item[0] in items:
             sum_prob_items += possible_item[1][position]
+        # If they are not, then add them to the list of currently available items
         if possible_item[0] not in items and possible_item[1][position] != 0:
             other_items.append(possible_item[0])
+    
+    # Loops through the default probability list again
     for possible_item in probability_list:
+        # Distributes the probabilities of the unavailable items equally among the available items
         if possible_item[0] in other_items:
             possible_item[1][position] += (sum_prob_items / len(other_items))
+        # Sets the probability of the unavailable items to 0
         if possible_item[0] in items:
             possible_item[1][position] = 0
     return probability_list
 
 
 def get_item(racer, num_racers):
+    """
+    Gives the racer an item
+
+    Parameters:
+    racer (obj): The racer the item is being given to
+    num_racers (int): The number of racers in the race
+
+    Returns:
+    None
+    """
+
+    # Checks for how many racers are in the current race
     if num_racers == 2:
+        # If there aren't any unavailable items, or if the racer is in a position where none of the items they can get
+        # can become unavailable, or if none of the unavailable items are in the list of the racer's possible items
         if not Unavailable_items or racer.position == 1 or not any(
                 item in possible_items(racer.position, all_items_2) for item in Unavailable_items):
+            # Choose an item from the default item probability list
             item = choose_item(all_items_2, racer.position)
             racer.item = item
         else:
+            # Otherwise, choose an item from the updated probabilities list
             item = choose_item(update_probabilities(Unavailable_items, all_items_2, racer.position), racer.position)
             racer.item = item
+    # Does the same process for every other possible number of racers
     if num_racers == 3:
         if not Unavailable_items or racer.position == 1 or not any(
                 item in possible_items(racer.position, all_items_3) for item in Unavailable_items):
@@ -391,16 +440,33 @@ def get_item(racer, num_racers):
             racer.item = item
 
 
-# Stuns the racer for 1 second (used in use_item)
 def one_sec_stun(original_racer, racer):
+    """
+    Stuns a racer for one second and updates several attributes appropriately
+
+    Parameters:
+    original_racer(obj): The racer doing the stunning
+    racer (obj): The racer being stunned
+
+    Returns:
+    None
+    """
+
+    # Checks if the one second has elapsed since the original racer used their item
     if Race_duration <= original_racer.time_item_used + 1:
+        # If so, add the appropriate status effects to the racer being affected if they are not already in their status list
+        # and if the racer is not invincible
+        # Also sets the affected racer's speed to 0 if they are not invincible
         if ("POW'd" not in racer.status) and ("stunned" not in
                                               racer.status) and (
                 "1s_stun" not in racer.status) and "3s_stun" not in racer.status:
             if "invulnerable" not in racer.status and "mega" not in racer.status:
                 racer.status.append("stunned")
                 racer.status.append("1s_stun")
-        racer.speed = 0
+        if "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.speed = 0
+    # If it is past one second (meaning the stun time is over), remove the status effects
+    # and set the attributes for both the affected racer and original racer back to their original values
     elif Race_duration > original_racer.time_item_used + 1:
         if "stunned" in racer.status and "1s_stun" in racer.status and racer.marker == 1:
             racer.status.remove("stunned")
@@ -414,7 +480,19 @@ def one_sec_stun(original_racer, racer):
 
 # Stuns the racer for 3 seconds (used in use_item)
 def three_sec_stun(original_racer, racer):
+    """
+    Stuns a racer for 3 seconds, gets rid of their item, and updates several attributes appropriately
+
+    Parameters:
+    original_racer (obj): The racer doing the stunning
+    racer (obj): The racer being stunned
+    """
+
+    # Checks if the three seconds has elapsed since the original racer used their item
     if Race_duration <= original_racer.time_item_used + 3:
+        # If so, add the appropriate status effects to the racer being affected if they are not already in their status list
+        # and if the racer is not invincible
+        # Also sets the affected racer's speed to 0 and removes their items if they are not invincible
         if "stunned" and "3s_stun" not in racer.status:
             if "stunned" in racer.status and "1s_stun" in racer.status:
                 racer.status.remove("stunned")
@@ -428,13 +506,18 @@ def three_sec_stun(original_racer, racer):
                 racer.using_item = False
                 racer.recently_used_item = None
             if "invulnerable" not in racer.status and "mega" not in racer.status:
+                # The lightning cloud cannot be removed until it zaps the racer it's affected
                 if racer.item != "lightning_cloud":
                     if racer.item in All_possible_unavailable_items and racer.item in Unavailable_items:
                         Unavailable_items.remove(racer.item)
                     racer.item = None
                 racer.status.append("stunned")
                 racer.status.append("3s_stun")
-        racer.speed = 0
+        if "invulnerable" not in racer.status and "mega" not in racer.status:
+            racer.speed = 0
+    
+    # If it is past three seconds (meaning the stun time is over), remove the status effects
+    # and set the attributes for both the affected racer and original racer back to their original values
     elif Race_duration > original_racer.time_item_used + 3:
         if "stunned" in racer.status and "3s_stun" in racer.status and racer.marker == 3:
             racer.status.remove("stunned")
@@ -447,31 +530,49 @@ def three_sec_stun(original_racer, racer):
 
 
 def banana_slowdown(racer):
+    """
+    Reduces a racer's speed by half when hit by a banana
+
+    Parameters:
+    racer (obj): The racer being affected
+
+    Returns:
+    None
+    """
+
     speed = racer.speed
+    # If a racer is currently being stunned by another item, this function should not have any effect
     if ("POW'd" not in racer.status) and ("stunned" not in
                                           racer.status) and (
             "1s_stun" not in racer.status) and "3s_stun" not in racer.status:
         if "sped up" in racer.status and "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.status.remove("sped up")
+        # Reduces speed by half if racer is not invincible
         if "invulnerable" not in racer.status and "mega" not in racer.status:
             racer.speed = 0.5 * speed
 
 
-# The racer using the item and the list of participants are the input arguments
-'''
-Additional notes on items: If a racer is currently stunned by a green or red shell, other red or green shells that hit them will
-have no effect. Pow blocks will override the green or red shell hit, and bombs and blue shells will override the POW block stun
-and thus will also override green or red shell stun.
-
-The "1s_stun" status is the status used when a racer gets stunned by one of the items that only stuns for 1 second.
-The "3s_stun" status is the status used when a racer gets stunned by one of the items that stuns for 3 seconds.
-'''
-
-
 def use_item(racer, participants):
+    """
+    Uses the item that the racer is holding
+
+    Parameters:
+    racer (obj): The racer using the item
+    participants (list of objects): The list of all of the racers in the race
+
+    Returns:
+    None
+    """
+
     global Unavailable_items, Blooper_use_time, POW_use_time, Lightning_use_time
-    # THE LIGHTNING CLOUD IS USED IMMEDIATELY UPON OBTAINING IT, BE AWARE OF THIS IN main()
-    # Also the racer won't lose the lightning cloud until it zaps them
+
+    # Checks for the racer's recently used item because some items disappear from the racers' inventory the moment this
+    # function is called for the first time.
+    # The recently used item attribute stores the item that the racer just used until any status effects completely wear off.
+    # The attribute is needed because we will call this function over and over in update_race_state() until a certain period 
+    # of time has passed, each time continuing to apply certain status effects.
+    # Once time is up, the recently used item attribute will be set back to None,
+    # to let the program know to stop calling this function
     if racer.recently_used_item == "lightning_cloud":
         if "mega" in racer.status or "invulnerable" in racer.status:
             if "lightning_cloud" in Unavailable_items:
@@ -479,7 +580,6 @@ def use_item(racer, participants):
             racer.item = None
             racer.recently_used_item = None
         else:
-            # Speed was defined before the while loop so the speed only decreases at the initial item usage and not throughout the while loop
             if Race_duration <= racer.time_item_used + 9 and "TC" not in racer.status:
                 speed = racer.speed
                 racer.status.append("TC")
@@ -1421,6 +1521,8 @@ def use_item(racer, participants):
                         three_sec_stun(racer, other_racer)
 
 
+# Creating the objects for all of the racers
+# Their names and weights are faithful to the original game
 mario = Racer("Mario", "Medium")
 luigi = Racer("Luigi", "Medium")
 peach = Racer("Peach", "Medium")
@@ -1845,7 +1947,7 @@ def main():
         participants[j].distance_from_start = -1 * initial_positions[j]
 
     df_distance, df_position, df_speed = run_race_simulation(participants, num_racers)
-    print(df_speed)
+    
 
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
