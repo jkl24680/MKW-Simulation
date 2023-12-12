@@ -1880,7 +1880,7 @@ def update_race_state(participants, num_racers):
 
         distance_traveled = racer.distance_from_start
         remainder = distance_traveled % 250
-        if (distance_traveled >= 250) and (distance_traveled < 2000) and (0 <= remainder <= 50) and (
+        if (distance_traveled >= 250) and (distance_traveled < finish_line) and (0 <= remainder <= 50) and (
                 racer.item is None):  # Item boxes are placed every 250 meters up until 1750 meters. Since some racers
             # may not land exactly on the item box, items are given to racers if they pass up to 50 meters of the item
             # box
@@ -1958,7 +1958,7 @@ def run_race_simulation(participants, num_racers):
     '''
     global df_position, df_speed, df_distance, Race_duration, finish_line, race_data
 
-    finish_line = 1000  # Race length can be changed freely
+    finish_line = 2000  # Race length can be changed freely
     df_distance = pd.DataFrame({"Race duration": [Race_duration]})
     df_speed = pd.DataFrame({"Race Duration": [Race_duration]})
     df_position = pd.DataFrame({"Race Duration": [Race_duration]})
