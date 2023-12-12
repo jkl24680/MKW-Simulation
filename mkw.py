@@ -413,12 +413,12 @@ def get_item(racer, num_racers):
             racer.item = item
 
 
-
 # For very specific scenarios where a racer has at least one of these status and needs to accelerate
 # to their max speed based on which ones they have
 def max_speed_slowdown(racer):
     """
-    Adjusts the speed of the racer if they have multiple status effects at once. Accounts for the combination of item effects
+    Adjusts the speed of the racer if they have multiple status effects at once. Accounts for the combination of item
+    effects
 
     Parameter:
     racer (object): the racer whose speed will decrease based on these effects
@@ -442,6 +442,7 @@ def max_speed_slowdown(racer):
     else:
         speed = racer.max_speed
     return speed
+
 
 def one_sec_stun(original_racer, racer):
     """
@@ -2106,6 +2107,7 @@ def main():
             if racer.finished:
                 print(f"{racer.name} has crossed the finish line in Position {racer.position}!")
 
+
 # Error handling
 # First checks if user inputs more than one command line argument
 if len(sys.argv) != 1:
@@ -2120,4 +2122,3 @@ else:
     # Prints out a message if user does not enter an integer between 2 and 12
     except ValueError:
         print("Unexpected error occurred. Make sure you input an integer between 2 and 12, inclusive.")
-
