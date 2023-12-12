@@ -919,7 +919,7 @@ def use_item(racer, participants):
                 # and add it again to guarantee that nothing weird happens
 
                 # The 'bill' status is required for a very specific situation in which the user activates the bill
-                # while in a star Don't want the code to break because of this
+                # while in a star. Don't want the code to break because of this
                 if "invulnerable" not in racer.status:
                     racer.status.append("invulnerable")
                 racer.status.append("bill")
@@ -1893,7 +1893,8 @@ def update_race_state(participants, num_racers):
 
         if racer.item == "lightning_cloud":
             if Race_duration == racer.time_item_got + 1 and racer.item is not None and racer.using_item is False:  # Use
-                # the item cloud after 1 second
+                # the lightning cloud item after 1 second
+                # This is faithful to the original game
                 racer.recently_used_item = racer.item
                 racer.time_item_used = Race_duration
                 racer.using_item = True
@@ -1995,10 +1996,11 @@ def main():
     # Checks if the user inputs an integer between 2 and 12
     # The error handling at the bottom will handle the cases where the user inputs a string
     n = input("Enter number of racers: ")
-    if (int(n) != float(n)) or (float(n) < 2.0) or (float(n) > 12.0):
+
+    if (int(float(n)) != float(n)) or (float(n) < 2.0) or (float(n) > 12.0):
         print("Must input an integer between 2 and 12, inclusive.")
         sys.exit()
-    num_racers = int(n)
+    num_racers = int(float(n))
 
     # Select int(n) racers at random from the list of all racers
     participants = random.sample(all_racers, num_racers)
@@ -2103,9 +2105,19 @@ def main():
         for racer in participants:
             if racer.finished:
                 print(f"{racer.name} has crossed the finish line in Position {racer.position}!")
-    else:
-        print("The race did not finish")
 
+# Error handling
+# First checks if user inputs more than one command line argument
+if len(sys.argv) != 1:
+    print("Invalid number of inputs")
+    sys.exit()
+else:
+    try:
+        main()
+    # Prints out a message if user ends a race early
+    except KeyboardInterrupt:
+        print("The race did not finish!")
+    # Prints out a message if user does not enter an integer between 2 and 12
+    except ValueError:
+        print("Unexpected error occurred. Make sure you input an integer between 2 and 12, inclusive.")
 
-if __name__ == "__main__":
-    main()
