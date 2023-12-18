@@ -1,6 +1,10 @@
-# AMS325-Final
+# Mario Kart Wii Simulation in Python
 
-This project aims to simulate Mario Kart Wii in Python 3.11. Users are able to choose between 2-12 racers and visualize that number of CPUs racing along the track. Run this function by typing python mkw.py into the command line once you are in the same directory as mkw.py. After typing this command, type in an integer from 2 to 12 when the program prompts you to "Enter the number of racers."
+This was done as a final project for a university-level programming class. It was created by Justin Lam, Mourya Chimpiri, and Idrees Bedar from Stony Brook University.
+
+It simulates a typical race between CPUs in Mario Kart Wii. Users are able to choose between 2-12 racers and visualize that number of CPUs racing along the track. Run this function by typing python mkw.py into the command line once you are in the same directory as mkw.py. After typing this command, type in an integer from 2 to 12 when the program prompts you to "Enter the number of racers."
+
+Please note that this simulation contains bugs and is missing certain features regarding item functionality, such as the inability for the racers to hit other racers when in a star, a bullet bill, or mega mushroom. It also heavily simplifies the race track, and the way the racers are visualized involve nothing but tables and bar graphs. We are considering fixing those bugs and adding more features in the future, but we will hold off on that for the time being.
 
 Racer- This class initializes Racer objects for each participant in the computer-simulated race. Each racer is initialized with a certain name and weight. The maximum speed of each racer is initialized as a scalar (light: 23, medium: 25, heavy: 27) multiplied by a random float from 1 to 1.5. The acceleration is the maximum speed divided by a scalar (light: 3, medium: 4, heavy: 5). Each racer also has attributes that assist in item functionality (position, item, recently_used_item, distance_from_start, status, racers_passed, time_item_got, time_item_used, time_delay, using_item, action, shocked, marker, user_marker, TC_initial, TC_final, and finished).
 
