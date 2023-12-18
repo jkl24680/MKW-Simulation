@@ -1,6 +1,6 @@
 # Mario Kart Wii Simulation in Python
 
-This was done as a final project for a university-level programming class. It was created by Justin Lam, Mourya Chimpiri, and Idrees Bedar from Stony Brook University.
+This was done as a final project for a university-level programming class. It was created by Justin Lam (repo owner), Mourya Chimpiri, and Idrees Bedar from Stony Brook University.
 
 It simulates a typical race between CPUs in Mario Kart Wii. Users are able to choose between 2-12 racers and visualize that number of CPUs racing along the track. Run this function by typing python mkw.py into the command line once you are in the same directory as mkw.py. After typing this command, type in an integer from 2 to 12 when the program prompts you to "Enter the number of racers."
 
