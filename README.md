@@ -4,7 +4,7 @@ This was done as a final project for a university-level programming class. It wa
 
 It simulates a typical race between CPUs in Mario Kart Wii. Users are able to choose between 2-12 racers and visualize that number of CPUs racing along the track. Run this function by typing python mkw.py into the command line once you are in the same directory as mkw.py. After typing this command, type in an integer from 2 to 12 when the program prompts you to "Enter the number of racers."
 
-If you would like to learn more about the original game: https://www.mariowiki.com/Mario_Kart_Wii#Basic_controls_and_actions
+If you would like to learn more about the original game: https://www.mariowiki.com/Mario_Kart_Wii#Basic_controls_and_actions \n
 The website containing the item probabilities: https://xer.forgotten-legends.org/re/mkw/items/#10
 
 Please note that this simulation contains bugs and is missing certain features regarding item functionality, such as the ability for the racers to hit other racers when in a star, a bullet bill, or mega mushroom. It also heavily simplifies the race track and certain movement features, and the way the racers are visualized involve only tables and bar graphs. We are considering fixing those bugs and adding more features in the future.
