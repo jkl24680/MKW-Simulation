@@ -11,6 +11,7 @@ The website containing the item probabilities: https://xer.forgotten-legends.org
 Please note that this simulation contains bugs and is missing certain features regarding item functionality, such as the ability for the racers to hit other racers when in a star, a bullet bill, or mega mushroom. It also heavily simplifies the race track and certain movement features, and the way the racers are visualized involve only tables and bar graphs. We are considering fixing those bugs and adding more features in the future.
 
 Here are all of the classes and functions we wrote for the program:
+
 Racer- This class initializes Racer objects for each participant in the computer-simulated race. Each racer is initialized with a certain name and weight. The maximum speed of each racer is initialized as a scalar (light: 23, medium: 25, heavy: 27) multiplied by a random float from 1 to 1.5. The acceleration is the maximum speed divided by a scalar (light: 3, medium: 4, heavy: 5). Each racer also has attributes that assist in item functionality (position, item, recently_used_item, distance_from_start, status, racers_passed, time_item_got, time_item_used, time_delay, using_item, action, shocked, marker, user_marker, TC_initial, TC_final, and finished).
 
 update_position- Swaps the positions of two racers. This function is called if the distance traveled of one racer is larger than the racer in the position ahead
